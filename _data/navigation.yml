@@ -2,10 +2,10 @@ list_title: Directory
 list_content:
 
 - title: About
-  url: about
+  url: /about/
 
 - title: Node Graph
-  url: node-graph
+  url: /node-graph/
 
 - title: Methodology
   url: #
