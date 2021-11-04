@@ -1,6 +1,8 @@
+---
 layout: page
 title: Node Graph
 permalink: node-graph
+---
 
 # Node Graph
 
