@@ -1,7 +1,7 @@
 ---
 layout: page
 title: Node Graph
-permalink: node-graph
+permalink: /node-graph/
 ---
 
 # Node Graph
