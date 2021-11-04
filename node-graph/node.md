@@ -1,3 +1,7 @@
+layout: page
+title: Node Graph
+permalink: node-graph
+
 # Node Graph
 
 <script type="text/javascript" src="https://d3js.org/d3.v6.min.js"></script>
