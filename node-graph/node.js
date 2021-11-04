@@ -18,12 +18,12 @@ const HEIGHT = d3.max([_height - MARGINS.top - MARGINS.bottom, MIN_HEIGHT]);
 
 // Create SVG & DOM structure ----------------------------------------------------------
 // var svg = d3.select("body")
-var svg = d3.select("#main_content")
+var svg = d3.select("#main_content_wrap")
     .append("svg")
-    .attr('width', WIDTH - MARGINS.right - MARGINS.left)
+    // .attr('width', WIDTH - MARGINS.right - MARGINS.left)
     .attr('height', HEIGHT - MARGINS.top - MARGINS.bottom)
     .attr("viewBox", [-WIDTH / 2, -HEIGHT / 2, WIDTH * 2, HEIGHT * 2])
-    .style('max-width', '90%')
+    // .style('max-width', '90%')
     .attr('transform', 'translate(' + MARGINS.left + ', ' + MARGINS.top + ')');
 
 // Initialize tooltip
