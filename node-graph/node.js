@@ -17,7 +17,8 @@ const WIDTH = d3.max([_width - MARGINS.left - MARGINS.right, MIN_WIDTH]);
 const HEIGHT = d3.max([_height - MARGINS.top - MARGINS.bottom, MIN_HEIGHT]);
 
 // Create SVG & DOM structure ----------------------------------------------------------
-var svg = d3.select("body")
+// var svg = d3.select("body")
+var svg = d3.select("#main_content")
     .append("svg")
     .attr('width', WIDTH - MARGINS.right - MARGINS.left)
     .attr('height', HEIGHT - MARGINS.top - MARGINS.bottom)
