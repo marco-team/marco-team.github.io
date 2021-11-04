@@ -4,7 +4,7 @@ permalink: /node-graph/
 
 # Node Graph
 
-<li><a href="#">Home</a></li>
+<li><a href="/">Home</a></li>
 
 <script type="text/javascript" src="https://d3js.org/d3.v6.min.js"></script>
 <link type="text/css" rel="stylesheet" href="./node.css" media="screen" />
