@@ -1,0 +1,85 @@
+/* Nodes */
+.node {
+    stroke-width: 0;
+}
+
+rect.candidate {
+    fill: orange;
+    transition-duration: 0.2s;
+}
+
+circle.committee {
+    fill: mediumpurple;
+    transition-duration: 0.2s;
+}
+
+ellipse.individual {
+    fill: teal;
+    transition-duration: 0.2s;
+}
+
+.pinned {
+    stroke-width: 5px;
+    stroke: black;
+}
+
+.primaryHighlighted {
+    stroke-width: 10px;
+    stroke: tomato;
+}
+
+.secondaryHighlighted {
+    stroke: black;
+}
+
+.secondaryHighlighted.downstream {
+    stroke-width: 3px;
+    stroke-dasharray: 10 5;
+}
+
+.secondaryHighlighted.upstream {
+    stroke-width: 2px;
+}
+
+/* Links */
+.edges path {
+    stroke: gray;
+    stroke-width: 1.5;
+}
+
+#arrowhead {
+    stroke: none;
+    fill: gray;
+}
+
+/* Tooltip */
+#tooltip {
+    position: absolute;
+    opacity: 0;
+    text-transform: capitalize;
+    border-color: gray;
+    border-width: 2px;
+    border-style: solid;
+    border-radius: 10px;
+    padding: 5px;
+    background-color: rgba(211, 211, 211, 0.70);
+    transition-property: opacity;
+    transition-duration: 0.2s;
+}
+
+/* Context menu */
+#contextmenu {
+    position: absolute;
+    opacity: 0;
+    text-transform: capitalize;
+    border-color: black;
+    border-style: solid;
+    border-radius: 5px;
+    border-width: 0.5px;
+    padding-left: 15px;
+    padding-right: 15px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    background-color: rgba(94, 94, 94, 0.96);
+    color: white;
+}
