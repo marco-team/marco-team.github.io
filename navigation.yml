@@ -1,0 +1,11 @@
+list_title: Directory
+list_content:
+
+- title: About
+  url: about.md
+
+- title: Node Graph
+  url: node-graph
+
+- title: Methodology
+  url: #
