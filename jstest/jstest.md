@@ -1,3 +1,7 @@
+---
+permalink: /jstest/
+---
+
 # JavaScript Test
 
 > Some JS below:
