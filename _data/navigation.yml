@@ -2,7 +2,7 @@ list_title: Directory
 list_content:
 
 - title: About
-  url: about.md
+  url: about
 
 - title: Node Graph
   url: node-graph
