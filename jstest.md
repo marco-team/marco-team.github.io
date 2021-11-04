@@ -8,6 +8,8 @@ Some JS below:
    document.write(5.6);
    
    var svg = d3.select("svg")
+      .attr("width", 300)
+      .attr("height", 300);
    svg.append("text")
       .attr("transform", "translate(100,0)")
       .attr("x", 50)
