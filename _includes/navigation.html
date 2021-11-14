@@ -17,14 +17,14 @@
     <ul>
     {% for entry in site.data.navigation %}
         {% if entry.url == current_page %}
-            {% assign current = ' class="navbar current"' %}
+            {% assign current = ' class="navbar current" style="display: inline"' %}
         {% else %}
             <!-- We have to declare it 'null' to ensure it doesn't propagate. -->
-            {% assign current = ' class="navbar"' %}
+            {% assign current = ' class="navbar" style="display: inline"' %}
         {% endif %}
         {% assign sublinks = entry.sublinks %}
         {% if sublinks %}
-        <li{{ current }} style="display: inline">
+        <li{{ current }}>
             <a href="{{ site.baseurl }}{{ entry.url }}">{{ entry.title }}</a>
             <ul>
                 {% for sublink in sublinks %}
