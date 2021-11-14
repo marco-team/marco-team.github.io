@@ -6,6 +6,9 @@ list_content:
 
 - title: Node Graph
   url: /node-graph/
+ 
+- title: Map
+  url: /map/
 
 - title: Methodology
   url: #
