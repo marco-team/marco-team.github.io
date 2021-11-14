@@ -6,8 +6,8 @@ permalink: /map/
 
 <!DOCTYPE html>
 <meta charset="utf-8">
-<script type="text/javascript" src="../lib/d3.v5.min.js"></script>
-<script type="text/javascript" src="../lib/d3-tip.min.js"></script>
+<script type="text/javascript" src="https://d3js.org/d3.v5.min.js"></script>
+<!-- <script type="text/javascript" src="../lib/d3-tip.min.js"></script> -->
 <style>
 
 button {
