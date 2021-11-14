@@ -171,7 +171,7 @@ p.bold {
             selectedStates = [];
         }
 
-        Promise.all([d3.json('individual_to_committee.json'), d3.json('united_states.json'), d3.json('code_to_state.json'), d3.json('presidential_bystate.json')]).then(function(values) {
+        Promise.all([d3.json('../data/individual_to_committee.json'), d3.json('../data/united_states.json'), d3.json('../data/code_to_state.json'), d3.json('../data/presidential_bystate.json')]).then(function(values) {
           var stateCodes = []
           var stateNames = []
           values[2].map(function(d) {
