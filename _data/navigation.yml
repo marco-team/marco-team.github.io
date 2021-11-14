@@ -4,14 +4,11 @@
 - title: About
   url: /about/
 
-- title: Visualizations
-  url: #
-  sublinks:
-  - title: Node Graph
-    url: /node-graph/
+- title: Node Graph
+  url: /node-graph/
 
-  - title: Map
-    url: /map/
+- title: Map
+  url: /map/
 
 - title: Methodology
   url: #
