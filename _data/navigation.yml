@@ -1,11 +1,17 @@
-list_title: Directory
-list_content:
-
+- title: Home
+  url: /
+  
 - title: About
-  url: about
+  url: /about/
 
-- title: Node Graph
-  url: node-graph
+- title: Visualizations
+  url: #
+  sublinks:
+  - title: Node Graph
+    url: /node-graph/
+
+  - title: Map
+    url: /map/
 
 - title: Methodology
   url: #

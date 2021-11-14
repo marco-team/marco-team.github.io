@@ -2,6 +2,8 @@
 
 Landing page.
 
+{% include navigation.html %}
+
 <h2>{{ site.data.navigation.list_title }}</h2>
 <ul>
    {% for item in site.data.navigation.list_content %}
