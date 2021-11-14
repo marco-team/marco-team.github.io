@@ -14,27 +14,15 @@
 
 <!-- Then we build the nav bar. -->
 <nav>
-    <ul>
+    <ul style="list-style-type: none; margin: 0; padding: 0; overflow: hidden; background-color: #333;">
     {% for entry in site.data.navigation %}
         {% if entry.url == current_page %}
-            {% assign current = ' class="navbar current" style="display: inline"' %}
+            {% assign current = ' class="navbar current" style="float: left"' %}
         {% else %}
             <!-- We have to declare it 'null' to ensure it doesn't propagate. -->
-            {% assign current = ' class="navbar" style="display: inline"' %}
+            {% assign current = ' class="navbar" style="float: left"' %}
         {% endif %}
-        {% assign sublinks = entry.sublinks %}
-        {% if sublinks %}
-        <li{{ current }}>
-            <a href="{{ site.baseurl }}{{ entry.url }}">{{ entry.title }}</a>
-            <ul>
-                {% for sublink in sublinks %}
-                <li><a href="{{ site.baseurl }}{{ sublink.url }}">{{ sublink.title }}</a></li>
-                {% endfor %}
-            </ul>
-        </li>
-        {% else %}
-        <li{{ current }}><a href="{{ site.baseurl }}{{ entry.url }}">{{ entry.title }}</a></li>
-        {% endif %}
+        <li{{ current }}><a href="{{ site.baseurl }}{{ entry.url }}" style="display: block; color: white; text-align: center; padding: 14px 16px; text-decoration: none;">{{ entry.title }}</a></li>
     {% endfor %}
     </ul>
 </nav>
