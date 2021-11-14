@@ -22,7 +22,7 @@
             <!-- We have to declare it 'null' to ensure it doesn't propagate. -->
             {% assign current = ' class="navbar" style="float: left"' %}
         {% endif %}
-        <li{{ current }}><a href="{{ site.baseurl }}{{ entry.url }}" style="display: block; color: white; text-align: center; padding: 14px 16px; text-decoration: none;" onMouseOver="this.style.color=#111" onMouseOut="this.style.color='none'">{{ entry.title }}</a></li>
+        <li{{ current }}><a href="{{ site.baseurl }}{{ entry.url }}" style="display: block; color: white; text-align: center; padding: 14px 16px; text-decoration: none;" onMouseOver="this.style.background=#111" onMouseOut="this.style.background='rgba(0,0,0,0)'">{{ entry.title }}</a></li>
     {% endfor %}
     </ul>
 </nav>
