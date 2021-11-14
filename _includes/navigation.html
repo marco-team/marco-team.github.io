@@ -14,7 +14,7 @@
 
 <!-- Then we build the nav bar. -->
 <nav>
-    <ul style="list-style-type: none; margin: 0; padding: 0; overflow: hidden; background-color: #333;">
+    <ul style="list-style-type: none; margin: 0; padding: 0; overflow: hidden;">
     {% for entry in site.data.navigation %}
         {% if entry.url == current_page %}
             {% assign current = ' class="navbar current" style="float: left"' %}
@@ -22,7 +22,7 @@
             <!-- We have to declare it 'null' to ensure it doesn't propagate. -->
             {% assign current = ' class="navbar" style="float: left"' %}
         {% endif %}
-        <li{{ current }}><a href="{{ site.baseurl }}{{ entry.url }}" style="display: block; color: white; text-align: center; padding: 14px 16px; text-decoration: none;">{{ entry.title }}</a></li>
+        <li{{ current }}><a href="{{ site.baseurl }}{{ entry.url }}" style="display: block; color: white; text-align: center; padding: 14px 16px; text-decoration: none;" onMouseOver="this.style.color=#111" onMouseOut="this.style.color='none'">{{ entry.title }}</a></li>
     {% endfor %}
     </ul>
 </nav>
