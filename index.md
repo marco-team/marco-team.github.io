@@ -2,7 +2,7 @@
 
 Landing page.
 
-{% include navigation.html}
+<!-- {% include navigation.html} -->
 
 <h2>{{ site.data.navigation.list_title }}</h2>
 <ul>
