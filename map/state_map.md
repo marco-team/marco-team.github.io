@@ -7,91 +7,7 @@ permalink: /map/
 <!-- <!DOCTYPE html> -->
 <meta charset="utf-8">
 <script type="text/javascript" src="https://d3js.org/d3.v5.min.js"></script>
-<!-- <script type="text/javascript" src="../lib/d3-tip.min.js"></script> -->
 <style>
-
-button {
-  background-color: #001166; /* Dark blue */
-  border-radius: 25px;
-  border: 2px solid #001166;
-  width: 50px;
-  height: 50px;
-  color: white;
-  text-align: center;
-  text-decoration: none;
-  display: inline-block;
-  cursor: pointer;
-  font-size: 25px;
-}
-
-button:hover {
-  transition: background-color 250ms linear;
-  background-color: white; 
-  border-color: black;
-  border: 2px solid #001166;
-  color: black;
-}
-
-
-text {
-  fill: #000;
-  font: 10px sans-serif;
-  pointer-events: none;
-}
-
-.modal {
-    display: none; /* Hidden by default */
-    position: fixed; /* Stay in place */
-    z-index: 1; /* Sit on top */
-    padding-top: 100px; /* Location of the box */
-    left: 0;
-    top: 0;
-    width: 100%; /* Full width */
-    height: 100%; /* Full height */
-    overflow: auto; /* Enable scroll if needed */
-    background-color: rgb(0,0,0); /* Fallback color */
-    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
-    
-}
-
-p.bold {
-    font-weight: bold;
-}
-
-/* Modal Content */
-.modal-content {
-    background-color: #fefefe;
-    margin: auto;
-    text-align: center;
-    padding: 20px;
-    border: 1px solid #888;
-    width: 25%;
-    border-radius: 12px;
-    animation-name: animatetop;
-    animation-duration: 0.4s;
-    font-size: 20px;
-}
-
-/* Add Animation */
-@keyframes animatetop {
-  from {top: -300px; opacity: 0}
-  to {top: 0; opacity: 1}
-}
-
-/* The Close Button */
-.close {
-    color: #aaaaaa;
-    float: right;
-    font-size: 28px;
-    font-weight: bold;
-}
-
-.close:hover,
-.close:focus {
-    color: #000;
-    text-decoration: none;
-    cursor: pointer;
-}
 
 </style>
 <head>
@@ -172,6 +88,7 @@ p.bold {
         }
 
         Promise.all([d3.json('../data/individual_to_committee.json'), d3.json('../data/united_states.json'), d3.json('../data/code_to_state.json'), d3.json('../data/presidential_bystate.json')]).then(function(values) {
+          console.log(values[3])
           var stateCodes = []
           var stateNames = []
           values[2].map(function(d) {
