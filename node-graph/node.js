@@ -110,10 +110,21 @@ Promise.all([
     let edges = new Array();
     update_connection_limit_redraw(10000000, init = true); // This is a trick to get it to work right
 
+    // d3.select("#connectionlimit").on("input", function () {
+    //     // Redraw graph on slide
+    //     update_connection_limit_redraw(+this.value);
+    //     console.log("nodes", nodes);
+    //     console.log("edges", edges);
+    // });
+
     d3.select("#connectionlimit").on("input", function () {
-        update_connection_limit_redraw(+this.value);
-        console.log("nodes", nodes);
-        console.log("edges", edges);
+        // Update the "Connection Limit = " text on slide
+        d3.select("#connectionlimit-value").node().textContent = this.value;
+    });
+
+    d3.select("#submit").on("click", function () {
+        // Redraw the graph on button click
+        update_connection_limit_redraw(d3.select("#connectionlimit").node().value);
     });
 
     // Make the force graph ------------------------------------------------------------
@@ -170,7 +181,6 @@ Promise.all([
                 .filter(n => n.type == "candidate")
                 .map(n => n.id)
         );
-        // console.log("frontier_nodes", frontier_nodes, frontier_nodes.length);
 
         while (frontier_nodes.length > 0) {
             var current_node_id = frontier_nodes.pop();
@@ -283,8 +293,6 @@ Promise.all([
             .on("mouseover", display_edge_tooltip)
             .on("mouseout", hide_tooltip)
             .on("mousemove", move_tooltip);
-
-
 
         // Update and restart the simulation.
         simulation.nodes(nodes);
