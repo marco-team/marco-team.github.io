@@ -213,6 +213,7 @@ Promise.all([
         // Remove/add nodes
         node = node.data(nodes, function (d) { return d.id });
         node.exit().remove();
+        node.selectAll("*").remove();
         node = node.enter()
             .append("g")
             .attr("class", d => (d.type + " node"))
