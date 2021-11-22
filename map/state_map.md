@@ -88,6 +88,7 @@ permalink: /map/
         }
 
         Promise.all([d3.json('../data/individual_to_committee.json'), d3.json('../data/united_states.json'), d3.json('../data/code_to_state.json'), d3.json('../data/presidential_bystate.json')]).then(function(values) {
+          console.log(values[3])
           var stateCodes = []
           var stateNames = []
           values[2].map(function(d) {
