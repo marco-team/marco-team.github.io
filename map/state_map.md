@@ -73,7 +73,15 @@ permalink: /map/
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
         .on("dblclick", dblclicked);
         
-
+        info_button = map_svg.append("circle")
+                              .style('fill', '#001166')
+                              .attr('r', 25)
+                              .attr('cx', 25)
+                              .attr('cy', 25)
+                              .on('mouseover', () => {d3.select(event.target).style("cursor", "pointer");})
+                              .on('mouseout', () => {d3.select(event.target).style("cursor", "default");})
+                              .on('click', showModal)
+                              
         var projection = d3.geoAlbersUsa().scale(1200).translate([487.5, 305])
         var path = d3.geoPath().projection(projection);
 
