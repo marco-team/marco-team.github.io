@@ -20,7 +20,7 @@ const HEIGHT = d3.max([_height - MARGINS.top - MARGINS.bottom, MIN_HEIGHT]);
 // var svg = d3.select("body")
 var svg = d3.select("#main_content_wrap")
     .append("svg")
-    // .attr('width', WIDTH - MARGINS.right - MARGINS.left)
+    .attr('width', WIDTH - MARGINS.right - MARGINS.left)
     .attr('height', HEIGHT - MARGINS.top - MARGINS.bottom)
     .attr("viewBox", [-WIDTH / 2, -HEIGHT / 2, WIDTH * 2, HEIGHT * 2])
     // .style('max-width', '90%')
@@ -103,8 +103,18 @@ Promise.all([
     let [raw_nodes, raw_edges] = data;
 
     // Filter to get only unique nodes & edges -----------------------------------------
-    const nodes = unique(raw_nodes, ['type', 'id']);
-    const edges = unique(raw_edges, ['source', 'target', 'date', 'quantity']);
+    const unique_nodes = unique(raw_nodes, ['type', 'id']);
+    const unique_edges = unique(raw_edges, ['source', 'target', 'date', 'quantity']);
+
+    let nodes = new Array();
+    let edges = new Array();
+    update_connection_limit_redraw(10000000, init = true); // This is a trick to get it to work right
+
+    d3.select("#connectionlimit").on("input", function () {
+        update_connection_limit_redraw(+this.value);
+        console.log("nodes", nodes);
+        console.log("edges", edges);
+    });
 
     // Make the force graph ------------------------------------------------------------
     const simulation = d3.forceSimulation(nodes)
@@ -119,7 +129,6 @@ Promise.all([
         // .alphaDecay(.1)
         .on("tick", ticked);
 
-    // links
     // Define the arrowhead
     svg.append('defs')
         .append('marker')
@@ -134,79 +143,153 @@ Promise.all([
         .append('svg:path')
         .attr('d', 'M -7,-5 L 3 ,0 L -7,5');
 
-    const link = svg.append("g")
+    // Edges
+    var link = svg.append("g")
         .attr("class", "edges")
         .selectAll("path")
-        .data(edges)
-        .enter()
-        .append("path")
-        .attr('stroke', '#666666')
-        .attr('fill', 'transparent')
-        .attr("marker-end", "url(#arrowhead)");
 
     // Nodes
-    const node = svg.append("g")
+    var node = svg.append("g")
         .attr("class", "nodes")
         .selectAll(".node")
-        .data(nodes)
-        .enter()
-        .append("g")
-        .attr("class", d => (d.type + " node"))
-        .attr("id", d => d.id);
 
-    // Candidate node shapes
-    svg.selectAll(".node.candidate")
-        .append("rect")
-        .attr("id", d => ("shape-" + d.id))
-        .attr("class", "candidate")
-        .attr("x", rectX)
-        .attr("y", rectY)
-        .attr("width", rectWidth)
-        .attr("height", rectHeight);
+    update_connection_limit_redraw(20); // This is the default value for the connection limit
 
-    // Committee node shapes
-    svg.selectAll(".node.committee")
-        .append("circle")
-        .attr("id", d => ("shape-" + d.id))
-        .attr("class", "committee")
-        .attr("r", circleRadius);
+    // Node & Edge limiters ------------------------------------------------------------
+    function update_connection_limit_redraw(max_connections, init = false) {
+        d3.select("#connectionlimit-value").text(max_connections);
+        d3.select("#connectionlimit").property("value", max_connections);
 
-    // Individual node shapes
-    svg.selectAll(".node.individual")
-        .append("ellipse")
-        .attr("id", d => ("shape-" + d.id))
-        .attr("class", "individual")
-        .attr("rx", ellipseRx)
-        .attr("ry", ellipseRy);
+        let limited_nodes = new Array();
+        let limited_edges = new Array();
 
-    // Node interactions
-    svg.selectAll(".node")
-        .call(d3.drag()
-            .on("start", dragstarted)
-            .on("drag", dragged)
-            .on("end", dragended)
-        )
-        .on("mouseover", function (event, node) {
-            display_node_tooltip(event, node);
-            highlight_node(node, edges);
-        })
-        .on("mouseout", function (event, node) {
-            hide_tooltip(event, node);
-            unhighlight_node(node, edges);
-        })
-        .on("mousemove", move_tooltip)
-        .on("dblclick", unpin_node)
-        .on("contextmenu", function (event, node) {
-            event.preventDefault();
-            hide_tooltip();
-            display_context_menu(event);
-        })
+        let explored_nodes = new Set();
+        let frontier_nodes = new Array();
+        frontier_nodes.push(
+            ...unique_nodes
+                .filter(n => n.type == "candidate")
+                .map(n => n.id)
+        );
+        // console.log("frontier_nodes", frontier_nodes, frontier_nodes.length);
 
-    // Edge interactions
-    svg.selectAll(".edges path")
-        .on("mouseover", display_edge_tooltip)
-        .on("mouseout", hide_tooltip)
-        .on("mousemove", move_tooltip);
+        while (frontier_nodes.length > 0) {
+            var current_node_id = frontier_nodes.pop();
+            explored_nodes.add(current_node_id);
+
+            if (init) {
+                var top_connections = unique_edges
+                    .filter(e => e.target == current_node_id)
+                    .sort((a, b) => b.quantity - a.quantity)
+                    .slice(0, max_connections);
+                frontier_nodes.push(
+                    ...top_connections.map(e => e.source)
+                        .filter(nid => !explored_nodes.has(nid) && !frontier_nodes.includes(nid))
+                );
+            } else {
+                var top_connections = unique_edges
+                    .filter(e => e.target.id == current_node_id)
+                    .sort((a, b) => b.quantity - a.quantity)
+                    .slice(0, max_connections);
+                frontier_nodes.push(
+                    ...top_connections.map(e => e.source.id)
+                        .filter(nid => !explored_nodes.has(nid) && !frontier_nodes.includes(nid))
+                );
+            }
+
+            limited_edges.push(...top_connections);
+            limited_nodes.push(...unique_nodes.filter(n => n.id == current_node_id));
+
+        }
+
+        nodes = limited_nodes;
+        edges = limited_edges;
+
+        if (!init) {
+            redraw();
+        }
+    }
+
+    function redraw() {
+        // Remove/add nodes
+        node = node.data(nodes, function (d) { return d.id });
+        node.exit().remove();
+        node = node.enter()
+            .append("g")
+            .attr("class", d => (d.type + " node"))
+            .attr("id", d => d.id)
+            .merge(node);
+
+        // Candidate node shapes
+        svg.selectAll(".node.candidate")
+            .append("rect")
+            .attr("id", d => ("shape-" + d.id))
+            .attr("class", "candidate")
+            .attr("x", rectX)
+            .attr("y", rectY)
+            .attr("width", rectWidth)
+            .attr("height", rectHeight);
+
+        // Committee node shapes
+        svg.selectAll(".node.committee")
+            .append("circle")
+            .attr("id", d => ("shape-" + d.id))
+            .attr("class", "committee")
+            .attr("r", circleRadius);
+
+        // Individual node shapes
+        svg.selectAll(".node.individual")
+            .append("ellipse")
+            .attr("id", d => ("shape-" + d.id))
+            .attr("class", "individual")
+            .attr("rx", ellipseRx)
+            .attr("ry", ellipseRy);
+
+        // Node interactions
+        svg.selectAll(".node")
+            .call(d3.drag()
+                .on("start", dragstarted)
+                .on("drag", dragged)
+                .on("end", dragended)
+            )
+            .on("mouseover", function (event, node) {
+                display_node_tooltip(event, node);
+                highlight_node(node, edges);
+            })
+            .on("mouseout", function (event, node) {
+                hide_tooltip(event, node);
+                unhighlight_node(node, edges);
+            })
+            .on("mousemove", move_tooltip)
+            .on("dblclick", unpin_node)
+            .on("contextmenu", function (event, node) {
+                event.preventDefault();
+                hide_tooltip();
+                display_context_menu(event);
+            })
+
+        // Remove/add edges
+        link = link.data(edges, function (d) { return d.source.id + "-" + d.target.id; });
+        link.exit().remove();
+        link = link.enter()
+            .append("path")
+            .attr('stroke', '#666666')
+            .attr('fill', 'transparent')
+            .attr("marker-end", "url(#arrowhead)")
+            .merge(link);
+
+        // Edge interactions
+        svg.selectAll(".edges path")
+            .on("mouseover", display_edge_tooltip)
+            .on("mouseout", hide_tooltip)
+            .on("mousemove", move_tooltip);
+
+
+
+        // Update and restart the simulation.
+        simulation.nodes(nodes);
+        simulation.force("link").links(edges);
+        simulation.alpha(0.3).restart();
+    }
 
     // Tick function -------------------------------------------------------------------
     function ticked() {
