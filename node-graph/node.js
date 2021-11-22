@@ -164,6 +164,11 @@ Promise.all([
         .attr("class", "nodes")
         .selectAll(".node")
 
+    // Pin & unpin all nodes -----------------------------------------------------------
+    d3.select("#pinall").on("click", pin_all_nodes);
+    d3.select("#unpinall").on("click", unpin_all_nodes);
+
+    // Draw the node graph -------------------------------------------------------------
     update_connection_limit_redraw(20); // This is the default value for the connection limit
 
     // Node & Edge limiters ------------------------------------------------------------
@@ -226,12 +231,12 @@ Promise.all([
         node.selectAll("*").remove();
         node = node.enter()
             .append("g")
-            .attr("class", d => (d.type + " node"))
+            .attr("class", d => (d.type + " viznode"))
             .attr("id", d => d.id)
             .merge(node);
 
         // Candidate node shapes
-        svg.selectAll(".node.candidate")
+        svg.selectAll(".viznode.candidate")
             .append("rect")
             .attr("id", d => ("shape-" + d.id))
             .attr("class", "candidate")
@@ -241,14 +246,14 @@ Promise.all([
             .attr("height", rectHeight);
 
         // Committee node shapes
-        svg.selectAll(".node.committee")
+        svg.selectAll(".viznode.committee")
             .append("circle")
             .attr("id", d => ("shape-" + d.id))
             .attr("class", "committee")
             .attr("r", circleRadius);
 
         // Individual node shapes
-        svg.selectAll(".node.individual")
+        svg.selectAll(".viznode.individual")
             .append("ellipse")
             .attr("id", d => ("shape-" + d.id))
             .attr("class", "individual")
@@ -256,7 +261,7 @@ Promise.all([
             .attr("ry", ellipseRy);
 
         // Node interactions
-        svg.selectAll(".node")
+        svg.selectAll(".viznode")
             .call(d3.drag()
                 .on("start", dragstarted)
                 .on("drag", dragged)
@@ -307,6 +312,28 @@ Promise.all([
         })
         node.attr("transform", d => "translate(" + d.x + ", " + d.y + ")");
     };
+
+    // Pin & Unpin All Nodes -----------------------------------------------------------
+    function pin_all_nodes() {
+        console.log("pin all")
+        nodes.map(n => {
+            n.fx = n.x;
+            n.fy = n.y;
+            svg.select("#shape-" + n.id)
+                .classed("pinned", true);
+        })
+    }
+
+    function unpin_all_nodes() {
+        console.log("unpin all")
+        svg.selectAll(".viznode")
+            .classed("pinned", false);
+        nodes.map(n => {
+            n.fx = null;
+            n.fy = null;
+        })
+        redraw();
+    }
 
     // Node interaction controllers ----------------------------------------------------
     function dragstarted(event, node) {
