@@ -13,6 +13,7 @@ permalink: /map/
 <head>
 <title></title></head>
 <body>
+    ```html
     <button onclick=showModal()>?</button>
     <select id="dropdown">
       <option value="candidate" selected>Contributions to presidential candidates</option>
@@ -32,6 +33,7 @@ permalink: /map/
         <p>You can have up to 2 states open in the comparison section at a time</p>
       </div>
     </div>
+    ```
     <script>
 
           // enter code to define margin and dimensions for svg
@@ -81,7 +83,7 @@ permalink: /map/
                               .on('mouseover', () => {d3.select(event.target).style("cursor", "pointer");})
                               .on('mouseout', () => {d3.select(event.target).style("cursor", "default");})
                               .on('click', showModal)
-                              
+
         var projection = d3.geoAlbersUsa().scale(1200).translate([487.5, 305])
         var path = d3.geoPath().projection(projection);
 
