@@ -33,12 +33,18 @@ var tooltip = d3.select("body")
     .attr("id", "tooltip");
 
 // Initialize context menu
-var contextMenu = d3.select("body")
+// var contextMenu = d3.select("body")
+//     .append("div")
+//     .append("foreignObject")
+//     .attr("id", "contextmenu");
+
+// svg.on("click", dismiss_context_menu);
+
+// Initialize Loading screen
+var loadingScreen = d3.select("body")
     .append("div")
     .append("foreignObject")
-    .attr("id", "contextmenu");
-
-svg.on("click", dismiss_context_menu);
+    .attr("id", "loading");
 
 // Shape sizes -------------------------------------------------------------------------
 // Circle nodes
@@ -96,11 +102,13 @@ const standardLinkForceDistance = 200;
 const zoomLinkForceDistance = 350;
 
 console.log("loading data", new Date().toLocaleTimeString("en-US"))
+show_loading();
 // Load in data ------------------------------------------------------------------------
 Promise.all([
     d3.json("../data/nodes.json"),
     d3.json("../data/edges.json")
 ]).then(function (data) {
+    dismiss_loading();
     console.log("data loaded!", new Date().toLocaleTimeString("en-US"))
     let [raw_nodes, raw_edges] = data;
 
@@ -119,11 +127,13 @@ Promise.all([
 
     d3.select("#submit").on("click", function () {
         // Redraw the graph on button click
+        show_loading();
         unpin_all_nodes();
         update_connection_limit_redraw(
             d3.select("#connectionlimit").node().value,
             d3.select("#explicitlimit").node().value
         );
+        dismiss_loading();
     });
 
     // Make the force graph ------------------------------------------------------------
@@ -231,8 +241,8 @@ Promise.all([
         edges = limited_edges;
 
         console.log("connection limiting filtering complete (", nodes.length, " nodes, ", edges.length, " edges)", new Date().toLocaleTimeString("en-US"))
-        console.log("nodes", nodes);
-        console.log("edges", edges)
+        // console.log("nodes", nodes);
+        // console.log("edges", edges)
 
         console.log("redrawing", new Date().toLocaleTimeString("en-US"))
         redraw();
@@ -621,3 +631,19 @@ function change_node_size(nodeId, sizes) {
         throw Error("Unknown shape constructor: " + constructor.name);
     }
 };
+
+// Loading screen ----------------------------------------------------------------------
+function show_loading() {
+    console.log("show loading")
+    loadingScreen
+        .style("opacity", 1)
+        .style("left", WIDTH / 2 + "px")
+        .style("top", HEIGHT / 2 + "px")
+        .html("Loading...");
+}
+
+function dismiss_loading() {
+    console.log("dismiss loading")
+    loadingScreen
+        .style("opacity", 0);
+}
