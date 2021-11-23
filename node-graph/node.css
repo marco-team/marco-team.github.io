@@ -19,12 +19,12 @@ ellipse.individual {
 }
 
 .pinned {
-    stroke-width: 5px;
+    stroke-width: 3px;
     stroke: black;
 }
 
 .primaryHighlighted {
-    stroke-width: 10px;
+    stroke-width: 5px;
     stroke: tomato;
 }
 

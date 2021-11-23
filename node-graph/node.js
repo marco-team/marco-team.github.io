@@ -14,7 +14,10 @@ const _height = window.innerHeight
     || document.body.clientHeight;
 
 const WIDTH = d3.max([_width - MARGINS.left - MARGINS.right, MIN_WIDTH]);
-const HEIGHT = d3.max([_height - MARGINS.top - MARGINS.bottom, MIN_HEIGHT]);
+const HEIGHT = d3.max([_height - MARGINS.top - MARGINS.bottom - 40, MIN_HEIGHT]);
+
+const verticalConstraints = [2 * MARGINS.top, HEIGHT - 4 * MARGINS.bottom];
+const horizontalConstraints = [2 * MARGINS.left, WIDTH - 3 * MARGINS.right];
 
 // Create SVG & DOM structure ----------------------------------------------------------
 // var svg = d3.select("body")
@@ -22,8 +25,6 @@ var svg = d3.select("#main_content_wrap")
     .append("svg")
     .attr('width', WIDTH - MARGINS.right - MARGINS.left)
     .attr('height', HEIGHT - MARGINS.top - MARGINS.bottom)
-    .attr("viewBox", [-WIDTH / 2, -HEIGHT / 2, WIDTH * 2, HEIGHT * 2])
-    // .style('max-width', '90%')
     .attr('transform', 'translate(' + MARGINS.left + ', ' + MARGINS.top + ')');
 
 // Initialize tooltip
@@ -42,17 +43,17 @@ svg.on("click", dismiss_context_menu);
 
 // Shape sizes -------------------------------------------------------------------------
 // Circle nodes
-const circleRadius = 15;
+const circleRadius = 10;
 
 // Rect nodes
-const rectWidth = 30;
-const rectHeight = 30;
-const rectX = -15; /* Make x & y -1/2 of width & height so rects are centered */
-const rectY = -15;
+const rectWidth = 20;
+const rectHeight = 20;
+const rectX = -10; /* Make x & y -1/2 of width & height so rects are centered */
+const rectY = -10;
 
 // Ellipse nodes
-const ellipseRx = 20;
-const ellipseRy = 10;
+const ellipseRx = 14;
+const ellipseRy = 7;
 
 // Zoom factors
 const primaryHighlightedFactor = 2;
@@ -124,6 +125,7 @@ Promise.all([
 
     d3.select("#submit").on("click", function () {
         // Redraw the graph on button click
+        unpin_all_nodes();
         update_connection_limit_redraw(d3.select("#connectionlimit").node().value);
     });
 
@@ -307,6 +309,12 @@ Promise.all([
 
     // Tick function -------------------------------------------------------------------
     function ticked() {
+        nodes = nodes.map(n => {
+            n.x = constrain(n.x, horizontalConstraints);
+            n.y = constrain(n.y, verticalConstraints);
+            return n;
+        });
+
         link.attr("d", function (d) {
             return "M" + d.source.x + "," + d.source.y + "L" + d.target.x + "," + d.target.y
         })
@@ -344,9 +352,9 @@ Promise.all([
     };
 
     function dragged(event, node) {
-        // console.log("dragged", event.detail)
-        node.fx = event.x;
-        node.fy = event.y;
+        node.fx = constrain(event.x, horizontalConstraints);
+        node.fy = constrain(event.y, verticalConstraints);
+        console.log(event.x, event.y)
 
         move_tooltip(event.sourceEvent);
     };
@@ -466,6 +474,11 @@ function unique(array, attributes) {
     });
     return uniques;
 };
+
+function constrain(x, limits) {
+    let [min, max] = limits;
+    return d3.max([d3.min([x, max]), min])
+}
 
 // Tooltip controllers -----------------------------------------------------------------
 function tooltipTimeout(elapsed) {
