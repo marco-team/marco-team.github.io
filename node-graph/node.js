@@ -14,16 +14,16 @@ const _height = window.innerHeight
     || document.body.clientHeight;
 
 const WIDTH = d3.max([_width - MARGINS.left - MARGINS.right, MIN_WIDTH]);
-const HEIGHT = d3.max([_height - MARGINS.top - MARGINS.bottom, MIN_HEIGHT]);
+const HEIGHT = d3.max([_height - MARGINS.top - MARGINS.bottom - 40, MIN_HEIGHT]);
+
+const verticalConstraints = [2 * MARGINS.top, HEIGHT - 4 * MARGINS.bottom];
+const horizontalConstraints = [2 * MARGINS.left, WIDTH - 3 * MARGINS.right];
 
 // Create SVG & DOM structure ----------------------------------------------------------
-// var svg = d3.select("body")
 var svg = d3.select("#main_content_wrap")
     .append("svg")
     .attr('width', WIDTH - MARGINS.right - MARGINS.left)
     .attr('height', HEIGHT - MARGINS.top - MARGINS.bottom)
-    .attr("viewBox", [-WIDTH / 2, -HEIGHT / 2, WIDTH * 2, HEIGHT * 2])
-    // .style('max-width', '90%')
     .attr('transform', 'translate(' + MARGINS.left + ', ' + MARGINS.top + ')');
 
 // Initialize tooltip
@@ -33,26 +33,32 @@ var tooltip = d3.select("body")
     .attr("id", "tooltip");
 
 // Initialize context menu
-var contextMenu = d3.select("body")
+// var contextMenu = d3.select("body")
+//     .append("div")
+//     .append("foreignObject")
+//     .attr("id", "contextmenu");
+
+// svg.on("click", dismiss_context_menu);
+
+// Initialize Loading screen
+var loadingScreen = d3.select("body")
     .append("div")
     .append("foreignObject")
-    .attr("id", "contextmenu");
-
-svg.on("click", dismiss_context_menu);
+    .attr("id", "loading");
 
 // Shape sizes -------------------------------------------------------------------------
 // Circle nodes
-const circleRadius = 15;
+const circleRadius = 10;
 
 // Rect nodes
-const rectWidth = 30;
-const rectHeight = 30;
-const rectX = -15; /* Make x & y -1/2 of width & height so rects are centered */
-const rectY = -15;
+const rectWidth = 20;
+const rectHeight = 20;
+const rectX = -10; /* Make x & y -1/2 of width & height so rects are centered */
+const rectY = -10;
 
 // Ellipse nodes
-const ellipseRx = 20;
-const ellipseRy = 10;
+const ellipseRx = 14;
+const ellipseRy = 7;
 
 // Zoom factors
 const primaryHighlightedFactor = 2;
@@ -92,28 +98,42 @@ let secondaryZoomNodeSizes = {
 };
 
 // Forces ------------------------------------------------------------------------------
-const standardLinkForceDistance = 60;
-const zoomLinkForceDistance = 130;
+const standardLinkForceDistance = 200;
+const zoomLinkForceDistance = 350;
 
+console.log("loading data", new Date().toLocaleTimeString("en-US"))
+show_loading();
 // Load in data ------------------------------------------------------------------------
 Promise.all([
     d3.json("../data/nodes.json"),
     d3.json("../data/edges.json")
 ]).then(function (data) {
+    dismiss_loading();
+    console.log("data loaded!", new Date().toLocaleTimeString("en-US"))
     let [raw_nodes, raw_edges] = data;
-
-    // Filter to get only unique nodes & edges -----------------------------------------
-    const unique_nodes = unique(raw_nodes, ['type', 'id']);
-    const unique_edges = unique(raw_edges, ['source', 'target', 'date', 'quantity']);
 
     let nodes = new Array();
     let edges = new Array();
-    update_connection_limit_redraw(10000000, init = true); // This is a trick to get it to work right
 
     d3.select("#connectionlimit").on("input", function () {
-        update_connection_limit_redraw(+this.value);
-        console.log("nodes", nodes);
-        console.log("edges", edges);
+        // Update the "Connection Limit = " text on slide
+        d3.select("#connectionlimit-value").node().textContent = this.value;
+    });
+
+    d3.select("#explicitlimit").on("input", function () {
+        // Update the "Explicit Limit = " text on slide
+        d3.select("#explicitlimit-value").node().textContent = this.value;
+    });
+
+    d3.select("#submit").on("click", function () {
+        // Redraw the graph on button click
+        show_loading();
+        unpin_all_nodes();
+        update_connection_limit_redraw(
+            d3.select("#connectionlimit").node().value,
+            d3.select("#explicitlimit").node().value
+        );
+        dismiss_loading();
     });
 
     // Make the force graph ------------------------------------------------------------
@@ -122,7 +142,7 @@ Promise.all([
         .force("center", d3.forceCenter(WIDTH / 2, HEIGHT / 2))
         .force("x", d3.forceX())
         .force("y", d3.forceY())
-        .force("charge", d3.forceManyBody().strength(-250))
+        .force("charge", d3.forceManyBody().strength(-100))
         .force("collision", d3.forceCollide().radius(15))
         // .alphaTarget(1)
         .velocityDecay(.3)
@@ -153,74 +173,104 @@ Promise.all([
         .attr("class", "nodes")
         .selectAll(".node")
 
-    update_connection_limit_redraw(20); // This is the default value for the connection limit
+    // Pin & unpin all nodes -----------------------------------------------------------
+    d3.select("#pinall").on("click", pin_all_nodes);
+    d3.select("#unpinall").on("click", unpin_all_nodes);
+
+    // Draw the node graph -------------------------------------------------------------
+    update_connection_limit_redraw(1, 5); // This is the default value for the connection & explicit limit
 
     // Node & Edge limiters ------------------------------------------------------------
-    function update_connection_limit_redraw(max_connections, init = false) {
+    function update_connection_limit_redraw(max_connections, explicit_limit) {
+        console.log("filtering through for connection limit", new Date().toLocaleTimeString("en-US"))
         d3.select("#connectionlimit-value").text(max_connections);
         d3.select("#connectionlimit").property("value", max_connections);
+
+        d3.select("#explicitlimit-value").text(explicit_limit);
+        d3.select("#explicitlimit").property("value", explicit_limit);
 
         let limited_nodes = new Array();
         let limited_edges = new Array();
 
-        let explored_nodes = new Set();
-        let frontier_nodes = new Array();
-        frontier_nodes.push(
-            ...unique_nodes
-                .filter(n => n.type == "candidate")
-                .map(n => n.id)
-        );
-        // console.log("frontier_nodes", frontier_nodes, frontier_nodes.length);
+        candidates = Array.from(["P80000722", "P80001571"]); // hard-code biden & trump IDs to not get extraneous candidates
+        candidates.forEach(candidate => {
+            let frontier_nodes = new Array();
+            frontier_nodes.push(candidate);
+            let explored_nodes = new Set();
+            while ((frontier_nodes.length > 0) && (explored_nodes.size <= explicit_limit)) {
+                var current_node_id = frontier_nodes.pop();
+                explored_nodes.add(current_node_id);
 
-        while (frontier_nodes.length > 0) {
-            var current_node_id = frontier_nodes.pop();
-            explored_nodes.add(current_node_id);
-
-            if (init) {
-                var top_connections = unique_edges
-                    .filter(e => e.target == current_node_id)
+                var top_connections = raw_edges
+                    .filter(e => {
+                        if (e.target.constructor === ({}).constructor) {
+                            return e.target.id == current_node_id;
+                        } else {
+                            return e.target == current_node_id;
+                        }
+                    })
                     .sort((a, b) => b.quantity - a.quantity)
                     .slice(0, max_connections);
+
                 frontier_nodes.push(
-                    ...top_connections.map(e => e.source)
+                    ...top_connections.map(e => {
+                        if (e.source.constructor === ({}).constructor) {
+                            return e.source.id;
+                        } else {
+                            return e.source;
+                        }
+                    })
                         .filter(nid => !explored_nodes.has(nid) && !frontier_nodes.includes(nid))
                 );
-            } else {
-                var top_connections = unique_edges
-                    .filter(e => e.target.id == current_node_id)
-                    .sort((a, b) => b.quantity - a.quantity)
-                    .slice(0, max_connections);
-                frontier_nodes.push(
-                    ...top_connections.map(e => e.source.id)
-                        .filter(nid => !explored_nodes.has(nid) && !frontier_nodes.includes(nid))
-                );
+
+                limited_edges.push(...top_connections);
+                limited_nodes.push(...raw_nodes.filter(n => n.id == current_node_id));
             }
+        });
 
-            limited_edges.push(...top_connections);
-            limited_nodes.push(...unique_nodes.filter(n => n.id == current_node_id));
+        // // Need to make sure you also capture the nodes for the leaf endpoints
+        limited_nodes.push(...raw_nodes.filter(n => limited_edges.map(e => {
+            if (e.source.constructor === ({}).constructor) {
+                return e.source.id;
+            } else {
+                return e.source;
+            }
+        }).includes(n.id)));
 
-        }
-
-        nodes = limited_nodes;
+        nodes = unique(limited_nodes, ["id"]);
         edges = limited_edges;
 
-        if (!init) {
-            redraw();
-        }
+        console.log("connection limiting filtering complete (", nodes.length, " nodes, ", edges.length, " edges)", new Date().toLocaleTimeString("en-US"))
+        // console.log("nodes", nodes);
+        // console.log("edges", edges)
+
+        console.log("redrawing", new Date().toLocaleTimeString("en-US"))
+        redraw();
+        console.log("redraw complete", new Date().toLocaleTimeString("en-US"))
     }
 
     function redraw() {
         // Remove/add nodes
         node = node.data(nodes, function (d) { return d.id });
         node.exit().remove();
+        node.selectAll("*").remove();
         node = node.enter()
             .append("g")
-            .attr("class", d => (d.type + " node"))
+            .attr("class", d => {
+                cls = "viznode ";
+                if (d.type == "CAN") {
+                    return cls + "candidate";
+                } else if (d.type == "IND") {
+                    return cls + "individual";
+                } else {
+                    return cls + "committee";
+                }
+            })
             .attr("id", d => d.id)
             .merge(node);
 
         // Candidate node shapes
-        svg.selectAll(".node.candidate")
+        svg.selectAll(".viznode.candidate")
             .append("rect")
             .attr("id", d => ("shape-" + d.id))
             .attr("class", "candidate")
@@ -230,14 +280,14 @@ Promise.all([
             .attr("height", rectHeight);
 
         // Committee node shapes
-        svg.selectAll(".node.committee")
+        svg.selectAll(".viznode.committee")
             .append("circle")
             .attr("id", d => ("shape-" + d.id))
             .attr("class", "committee")
             .attr("r", circleRadius);
 
         // Individual node shapes
-        svg.selectAll(".node.individual")
+        svg.selectAll(".viznode.individual")
             .append("ellipse")
             .attr("id", d => ("shape-" + d.id))
             .attr("class", "individual")
@@ -245,7 +295,7 @@ Promise.all([
             .attr("ry", ellipseRy);
 
         // Node interactions
-        svg.selectAll(".node")
+        svg.selectAll(".viznode")
             .call(d3.drag()
                 .on("start", dragstarted)
                 .on("drag", dragged)
@@ -283,8 +333,6 @@ Promise.all([
             .on("mouseout", hide_tooltip)
             .on("mousemove", move_tooltip);
 
-
-
         // Update and restart the simulation.
         simulation.nodes(nodes);
         simulation.force("link").links(edges);
@@ -293,11 +341,40 @@ Promise.all([
 
     // Tick function -------------------------------------------------------------------
     function ticked() {
+        nodes = nodes.map(n => {
+            n.x = constrain(n.x, horizontalConstraints);
+            n.y = constrain(n.y, verticalConstraints);
+            return n;
+        });
+
         link.attr("d", function (d) {
+            // console.log(d.source, d.target)
             return "M" + d.source.x + "," + d.source.y + "L" + d.target.x + "," + d.target.y
         })
         node.attr("transform", d => "translate(" + d.x + ", " + d.y + ")");
     };
+
+    // Pin & Unpin All Nodes -----------------------------------------------------------
+    function pin_all_nodes() {
+        console.log("pin all")
+        nodes.map(n => {
+            n.fx = n.x;
+            n.fy = n.y;
+            svg.select("#shape-" + n.id)
+                .classed("pinned", true);
+        })
+    }
+
+    function unpin_all_nodes() {
+        console.log("unpin all")
+        svg.selectAll(".viznode")
+            .classed("pinned", false);
+        nodes.map(n => {
+            n.fx = null;
+            n.fy = null;
+        })
+        redraw();
+    }
 
     // Node interaction controllers ----------------------------------------------------
     function dragstarted(event, node) {
@@ -308,9 +385,8 @@ Promise.all([
     };
 
     function dragged(event, node) {
-        // console.log("dragged", event.detail)
-        node.fx = event.x;
-        node.fy = event.y;
+        node.fx = constrain(event.x, horizontalConstraints);
+        node.fy = constrain(event.y, verticalConstraints);
 
         move_tooltip(event.sourceEvent);
     };
@@ -431,6 +507,11 @@ function unique(array, attributes) {
     return uniques;
 };
 
+function constrain(x, limits) {
+    let [min, max] = limits;
+    return d3.max([d3.min([x, max]), min])
+}
+
 // Tooltip controllers -----------------------------------------------------------------
 function tooltipTimeout(elapsed) {
     if (elapsed > 3500) {
@@ -550,3 +631,19 @@ function change_node_size(nodeId, sizes) {
         throw Error("Unknown shape constructor: " + constructor.name);
     }
 };
+
+// Loading screen ----------------------------------------------------------------------
+function show_loading() {
+    console.log("show loading")
+    loadingScreen
+        .style("opacity", 1)
+        .style("left", WIDTH / 2 + "px")
+        .style("top", HEIGHT / 2 + "px")
+        .html("Loading...");
+}
+
+function dismiss_loading() {
+    console.log("dismiss loading")
+    loadingScreen
+        .style("opacity", 0);
+}
