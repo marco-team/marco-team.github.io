@@ -16,8 +16,8 @@ const _height = window.innerHeight
 const WIDTH = d3.max([_width - MARGINS.left - MARGINS.right, MIN_WIDTH]);
 const HEIGHT = d3.max([_height - MARGINS.top - MARGINS.bottom - 130, MIN_HEIGHT]);
 
-const verticalConstraints = [2 * MARGINS.top, HEIGHT - 4 * MARGINS.bottom];
-const horizontalConstraints = [2 * MARGINS.left, WIDTH - 3 * MARGINS.right];
+const verticalConstraints = [MARGINS.top + 100, HEIGHT - MARGINS.bottom - 30];
+const horizontalConstraints = [MARGINS.left + 10, WIDTH - MARGINS.right - 30];
 
 // Create SVG & DOM structure ----------------------------------------------------------
 var svg = d3.select("#main_content_wrap")
@@ -219,23 +219,34 @@ Promise.all([
     let nodes = new Array();
     let edges = new Array();
 
+    // User settings -------------------------------------------------------------------
+    // Update values as you slide
     d3.select("#connectionlimit").on("input", function () {
-        // Update the "Connection Limit = " text on slide
         d3.select("#connectionlimit-value").node().textContent = this.value;
     });
 
     d3.select("#explicitlimit").on("input", function () {
-        // Update the "Explicit Limit = " text on slide
         d3.select("#explicitlimit-value").node().textContent = this.value;
     });
 
+    d3.select("#chargestrength").on("input", function () {
+        d3.select("#chargestrength-value").node().textContent = this.value;
+    });
+
+    d3.select("#alpha").on("input", function () {
+        d3.select("#alpha-value").node().textContent = this.value;
+    });
+
+    // Redraw when you hit button
     d3.select("#submit").on("click", function () {
         // Redraw the graph on button click
         show_loading();
         unpin_all_nodes();
         update_connection_limit_redraw(
-            d3.select("#connectionlimit").node().value,
-            d3.select("#explicitlimit").node().value
+            connection_limit = d3.select("#connectionlimit").node().value,
+            explicit_limit = d3.select("#explicitlimit").node().value,
+            charge_strength = d3.select("#chargestrength").node().value,
+            alpha = d3.select("#alpha").node().value,
         );
         dismiss_loading();
     });
@@ -246,7 +257,7 @@ Promise.all([
         .force("center", d3.forceCenter(WIDTH / 2, HEIGHT / 2))
         .force("x", d3.forceX())
         .force("y", d3.forceY())
-        .force("charge", d3.forceManyBody().strength(-100))
+        // .force("charge", d3.forceManyBody().strength(-100))
         .force("collision", d3.forceCollide().radius(15))
         // .alphaTarget(1)
         .velocityDecay(.3)
@@ -282,17 +293,28 @@ Promise.all([
     d3.select("#unpinall").on("click", unpin_all_nodes);
 
     // Draw the node graph -------------------------------------------------------------
-    update_connection_limit_redraw(1, 5); // This is the default value for the connection & explicit limit
+    update_connection_limit_redraw(
+        max_connections = 1, explicit_limit = 5, charge_strength = 100, alpha = 0.3
+    ); // This is the default values for the user settings
 
     // Node & Edge limiters ------------------------------------------------------------
-    function update_connection_limit_redraw(max_connections, explicit_limit) {
+    function update_connection_limit_redraw(max_connections, explicit_limit, charge_strength, alpha) {
         console.log("filtering through for connection limit", new Date().toLocaleTimeString("en-US"))
+
+        // Initialize all user values
         d3.select("#connectionlimit-value").text(max_connections);
         d3.select("#connectionlimit").property("value", max_connections);
 
         d3.select("#explicitlimit-value").text(explicit_limit);
         d3.select("#explicitlimit").property("value", explicit_limit);
 
+        d3.select("#chargestrength-value").text(charge_strength);
+        d3.select("#chargestrength").property("value", charge_strength);
+
+        d3.select("#alpha-value").text(alpha);
+        d3.select("#alpha").property("value", alpha);
+
+        // Filter through based on what user selected
         let limited_nodes = new Array();
         let limited_edges = new Array();
 
@@ -349,11 +371,11 @@ Promise.all([
         // console.log("edges", edges)
 
         console.log("redrawing", new Date().toLocaleTimeString("en-US"))
-        redraw();
+        redraw(charge_strength, alpha);
         console.log("redraw complete", new Date().toLocaleTimeString("en-US"))
     }
 
-    function redraw() {
+    function redraw(charge_strength, alpha) {
         // Remove/add nodes
         node = node.data(nodes, function (d) { return d.id });
         node.exit().remove();
@@ -440,7 +462,10 @@ Promise.all([
         // Update and restart the simulation.
         simulation.nodes(nodes);
         simulation.force("link").links(edges);
-        simulation.alpha(0.3).restart();
+        simulation
+            .force("charge", d3.forceManyBody().strength(Number(-charge_strength)))
+            .alpha(Number(alpha))
+            .restart();
     }
 
     // Tick function -------------------------------------------------------------------
@@ -477,7 +502,10 @@ Promise.all([
             n.fx = null;
             n.fy = null;
         })
-        redraw();
+        redraw(
+            charge_strength = d3.select("#chargestrength").node().value,
+            alpha = d3.select("#alpha").node().value
+        );
     }
 
     // Node interaction controllers ----------------------------------------------------
