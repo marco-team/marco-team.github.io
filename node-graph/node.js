@@ -139,9 +139,75 @@ let secondaryZoomNodeSizes = {
 const standardLinkForceDistance = 200;
 const zoomLinkForceDistance = 350;
 
+// Legends -----------------------------------------------------------------------------
+var legend = svg.append("g")
+    .attr("id", "legend")
+    .attr("transform", "translate(20, 20)");
+
+// Node legend
+var nodeKeys = ["Candidate", "Committee/Organization", "Individual"];
+
+var nodeColorScale = d3.scaleOrdinal()
+    .domain(nodeKeys)
+    .range(["orange", "mediumpurple", "teal"]);
+
+var nodeSymbolScale = d3.scaleOrdinal()
+    .domain(nodeKeys)
+    .range([
+        d3.symbol().type(d3.symbolSquare)(),
+        d3.symbol().type(d3.symbolCircle)(),
+        ( // Custom ellipse symbol
+            "M4.51351666838205,0" + // Move to right edge
+            "A4.51351666838205,2.256758334,0,1,1,-4.51351666838205,0" + // half arc
+            "A4.51351666838205,2.256758334,0,1,1,4.51351666838205,0" // other half arc
+        )
+    ]);
+
+var nodeLegend = d3.legendSymbol()
+    .scale(nodeSymbolScale)
+    .orient("vertical")
+    .title("Node Legend")
+
+legend.append("g")
+    .attr("id", "node-legend")
+    .call(nodeLegend)
+    .selectAll(".swatch")
+    .attr("fill", d => nodeColorScale(d));
+
+// Highlight legend
+var highlightKeys = ["Highlighted", "Target", "Source"];
+
+var highlightColorScale = d3.scaleOrdinal()
+    .domain(nodeKeys)
+    .range(["tomato", "black", "black"]);
+
+var highlightSymbolScale = d3.scaleOrdinal()
+    .domain(highlightKeys)
+    .range([
+        "M0,-2.5 H20 V2.5 H0 V-2.5",
+        "M0,-1.5 H8 V1.5 H0 V-1.5 M12,-2 H20 V1.5 H12 V-1.5",
+        "M0,-1 H20 V1 H0 V-1"
+    ]);
+
+var highlightLegend = d3.legendSymbol()
+    .scale(highlightSymbolScale)
+    .orient("vertical")
+    .title("Highlight Legend")
+
+legend.append("g")
+    .attr("transform", "translate(300, 0)")
+    .attr("id", "highlight-legend")
+    .call(highlightLegend)
+    .selectAll(".swatch")
+    .attr("fill", d => highlightColorScale(d));
+
+
+
+
+// Load in data ------------------------------------------------------------------------
 console.log("loading data", new Date().toLocaleTimeString("en-US"))
 show_loading();
-// Load in data ------------------------------------------------------------------------
+
 Promise.all([
     d3.json("../data/nodes.json"),
     d3.json("../data/edges.json")

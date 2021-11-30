@@ -89,18 +89,10 @@ ellipse.individual {
     display: inline-block; 
 }
 
-.legend span.twodigit {
-    width: 18px;
-}
-
 .legend span.threedigit {
     width: 25px;
 }
 
 .legend span.spacer {
     width: 30px;
-}
-
-.legend input.slider {
-    width: 15%;
 }
