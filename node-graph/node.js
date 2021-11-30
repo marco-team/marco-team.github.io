@@ -14,7 +14,7 @@ const _height = window.innerHeight
     || document.body.clientHeight;
 
 const WIDTH = d3.max([_width - MARGINS.left - MARGINS.right, MIN_WIDTH]);
-const HEIGHT = d3.max([_height - MARGINS.top - MARGINS.bottom - 40, MIN_HEIGHT]);
+const HEIGHT = d3.max([_height - MARGINS.top - MARGINS.bottom - 130, MIN_HEIGHT]);
 
 const verticalConstraints = [2 * MARGINS.top, HEIGHT - 4 * MARGINS.bottom];
 const horizontalConstraints = [2 * MARGINS.left, WIDTH - 3 * MARGINS.right];
@@ -83,6 +83,9 @@ d3.select("#explicitlimit-info")
     .on("mouseover", event => show_info_hover(event, explicitlimitinfo))
     .on("mouseout", _ => hide_info_hover(explicitlimitinfo));
 
+// Make sure they are initially hidden
+hide_info_hover(connectionlimitinfo);
+hide_info_hover(explicitlimitinfo);
 
 // Shape sizes -------------------------------------------------------------------------
 // Circle nodes
@@ -200,9 +203,6 @@ legend.append("g")
     .call(highlightLegend)
     .selectAll(".swatch")
     .attr("fill", d => highlightColorScale(d));
-
-
-
 
 // Load in data ------------------------------------------------------------------------
 console.log("loading data", new Date().toLocaleTimeString("en-US"))
@@ -742,7 +742,7 @@ function show_loading() {
     loadingScreen
         .style("opacity", 1)
         .style("left", WIDTH / 2 + "px")
-        .style("top", HEIGHT / 2 + "px")
+        .style("top", (_height - HEIGHT / 2) + "px")
         .html("Loading...");
 }
 
