@@ -44,7 +44,7 @@ ellipse.individual {
 /* Links */
 .edges path {
     stroke: gray;
-    stroke-width: 1.5;
+    stroke-width: 1.5px;
 }
 
 #arrowhead {
@@ -53,7 +53,7 @@ ellipse.individual {
 }
 
 /* Tooltip */
-#tooltip, #loading {
+#tooltip, #loading, .info {
     position: absolute;
     opacity: 0;
     text-transform: capitalize;
@@ -82,4 +82,22 @@ ellipse.individual {
     padding-bottom: 5px;
     background-color: rgba(94, 94, 94, 0.96);
     color: white;
+}
+
+/* Legend */
+.legend span {
+    display: inline-block; 
+}
+
+.legend span.threedigit {
+    width: 25px;
+}
+
+.legend span.spacer {
+    width: 30px;
+}
+
+.info {
+    text-transform: none;
+    opacity: 1;
 }

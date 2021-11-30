@@ -1,6 +1,6 @@
 // Screen sizing -----------------------------------------------------------------------
 const MIN_WIDTH = 300;
-const MIN_HEIGHT = 300;
+const MIN_HEIGHT = 800;
 const MARGINS = {
     'top': 10, 'bottom': 10, 'left': 10, 'right': 10
 };
@@ -14,10 +14,12 @@ const _height = window.innerHeight
     || document.body.clientHeight;
 
 const WIDTH = d3.max([_width - MARGINS.left - MARGINS.right, MIN_WIDTH]);
-const HEIGHT = d3.max([_height - MARGINS.top - MARGINS.bottom - 40, MIN_HEIGHT]);
+const HEIGHT = d3.max([_height - MARGINS.top - MARGINS.bottom - 130, MIN_HEIGHT]);
 
-const verticalConstraints = [2 * MARGINS.top, HEIGHT - 4 * MARGINS.bottom];
-const horizontalConstraints = [2 * MARGINS.left, WIDTH - 3 * MARGINS.right];
+const verticalConstraints = [MARGINS.top + 100, HEIGHT - MARGINS.bottom - 30];
+const horizontalConstraints = [MARGINS.left + 10, WIDTH - MARGINS.right - 30];
+
+const CANDIDATE_IDS = Array.from(["P80000722", "P80001571"]); // hard-code biden & trump IDs to not get extraneous candidates
 
 // Create SVG & DOM structure ----------------------------------------------------------
 var svg = d3.select("#main_content_wrap")
@@ -45,6 +47,89 @@ var loadingScreen = d3.select("body")
     .append("div")
     .append("foreignObject")
     .attr("id", "loading");
+
+// Initialize info hovers
+var connectionlimitinfo = d3.select("body")
+    .append("div")
+    .append("foreignObject")
+    .attr("class", "info")
+    .html((
+        "<h3>Connection Limit</h3>" +
+        "Controls the maximum number of incoming edges for each node. Think of this " +
+        "as a proxy for controlling the branching factor of the graph.<br><br>" +
+        "When there are more edges than this limit allows for, the ones with the " +
+        "largest disbursement/receipt quantity are displayed."
+    ));
+
+d3.select("#connectionlimit-info")
+    .on("mouseover", event => show_info_hover(event, connectionlimitinfo))
+    .on("mouseout", _ => hide_info_hover(connectionlimitinfo));
+
+var explicitlimitinfo = d3.select("body")
+    .append("div")
+    .append("foreignObject")
+    .attr("class", "info")
+    .html((
+        "<h3>Candidate Limit</h3>" +
+        "Controls the approximate maximum number of nodes attached to each candidate " +
+        "node. Think of this as a proxy for controlling the depth of the graph.<br><br>" +
+        "When there are more nodes than this limit allows for, the ones closest to " +
+        "the candidate are displayed."
+    ));
+
+d3.select("#explicitlimit-info")
+    .on("mouseover", event => show_info_hover(event, explicitlimitinfo))
+    .on("mouseout", _ => hide_info_hover(explicitlimitinfo));
+
+var chargestrengthinfo = d3.select("body")
+    .append("div")
+    .append("foreignObject")
+    .attr("class", "info")
+    .html((
+        "<h3>Charge Strength</h3>" +
+        "Controls the magnitude of the node graph charge force strength. Think of this " +
+        " as the size of the mini \"explosion\" that gets all of the nodes moving to start.<br><br>" +
+        "This may need to be adjusted as you increase/decrease the number of nodes to " +
+        "get a good looking layout."
+    ));
+
+d3.select("#chargestrength-info")
+    .on("mouseover", event => show_info_hover(event, chargestrengthinfo))
+    .on("mouseout", _ => hide_info_hover(chargestrengthinfo));
+
+var alphainfo = d3.select("body")
+    .append("div")
+    .append("foreignObject")
+    .attr("class", "info")
+    .html((
+        "<h3>Alpha</h3>" +
+        "The alpha parameter can be thought of as a way to subdue the movement in " +
+        "the graph. Set it to 0 to have no movement."
+    ));
+
+d3.select("#alpha-info")
+    .on("mouseover", event => show_info_hover(event, alphainfo))
+    .on("mouseout", _ => hide_info_hover(alphainfo));
+
+var pincandidatesinfo = d3.select("body")
+    .append("div")
+    .append("foreignObject")
+    .attr("class", "info")
+    .html((
+        "<h3>Pin Candidates</h3>" +
+        "Whether to pin candidates to the top of the screen for easier viewing."
+    ));
+
+d3.select("#pincandidates-info")
+    .on("mouseover", event => show_info_hover(event, pincandidatesinfo))
+    .on("mouseout", _ => hide_info_hover(pincandidatesinfo));
+
+// Make sure they are initially hidden
+hide_info_hover(connectionlimitinfo);
+hide_info_hover(explicitlimitinfo);
+hide_info_hover(chargestrengthinfo);
+hide_info_hover(alphainfo);
+hide_info_hover(pincandidatesinfo);
 
 // Shape sizes -------------------------------------------------------------------------
 // Circle nodes
@@ -101,9 +186,72 @@ let secondaryZoomNodeSizes = {
 const standardLinkForceDistance = 200;
 const zoomLinkForceDistance = 350;
 
+// Legends -----------------------------------------------------------------------------
+var legend = svg.append("g")
+    .attr("id", "legend")
+    .attr("transform", "translate(20, 20)");
+
+// Node legend
+var nodeKeys = ["Candidate", "Committee/Organization", "Individual"];
+
+var nodeColorScale = d3.scaleOrdinal()
+    .domain(nodeKeys)
+    .range(["orange", "mediumpurple", "teal"]);
+
+var nodeSymbolScale = d3.scaleOrdinal()
+    .domain(nodeKeys)
+    .range([
+        d3.symbol().type(d3.symbolSquare)(),
+        d3.symbol().type(d3.symbolCircle)(),
+        ( // Custom ellipse symbol
+            "M4.51351666838205,0" + // Move to right edge
+            "A4.51351666838205,2.256758334,0,1,1,-4.51351666838205,0" + // half arc
+            "A4.51351666838205,2.256758334,0,1,1,4.51351666838205,0" // other half arc
+        )
+    ]);
+
+var nodeLegend = d3.legendSymbol()
+    .scale(nodeSymbolScale)
+    .orient("vertical")
+    .title("Node Legend")
+
+legend.append("g")
+    .attr("id", "node-legend")
+    .call(nodeLegend)
+    .selectAll(".swatch")
+    .attr("fill", d => nodeColorScale(d));
+
+// Highlight legend
+var highlightKeys = ["Highlighted", "Target", "Source"];
+
+var highlightColorScale = d3.scaleOrdinal()
+    .domain(nodeKeys)
+    .range(["tomato", "black", "black"]);
+
+var highlightSymbolScale = d3.scaleOrdinal()
+    .domain(highlightKeys)
+    .range([
+        "M0,-2.5 H20 V2.5 H0 V-2.5",
+        "M0,-1.5 H8 V1.5 H0 V-1.5 M12,-2 H20 V1.5 H12 V-1.5",
+        "M0,-1 H20 V1 H0 V-1"
+    ]);
+
+var highlightLegend = d3.legendSymbol()
+    .scale(highlightSymbolScale)
+    .orient("vertical")
+    .title("Highlight Legend")
+
+legend.append("g")
+    .attr("transform", "translate(300, 0)")
+    .attr("id", "highlight-legend")
+    .call(highlightLegend)
+    .selectAll(".swatch")
+    .attr("fill", d => highlightColorScale(d));
+
+// Load in data ------------------------------------------------------------------------
 console.log("loading data", new Date().toLocaleTimeString("en-US"))
 show_loading();
-// Load in data ------------------------------------------------------------------------
+
 Promise.all([
     d3.json("../data/nodes.json"),
     d3.json("../data/edges.json")
@@ -115,23 +263,43 @@ Promise.all([
     let nodes = new Array();
     let edges = new Array();
 
+    // User settings -------------------------------------------------------------------
+    // Update values as you slide
     d3.select("#connectionlimit").on("input", function () {
-        // Update the "Connection Limit = " text on slide
         d3.select("#connectionlimit-value").node().textContent = this.value;
     });
 
     d3.select("#explicitlimit").on("input", function () {
-        // Update the "Explicit Limit = " text on slide
         d3.select("#explicitlimit-value").node().textContent = this.value;
     });
 
+    d3.select("#chargestrength").on("input", function () {
+        d3.select("#chargestrength-value").node().textContent = this.value;
+    });
+
+    d3.select("#alpha").on("input", function () {
+        d3.select("#alpha-value").node().textContent = this.value;
+    });
+
+    d3.select("#pincandidates").on("input", function () {
+        if (this.value == "on") {
+            this.value = "off";
+        } else {
+            this.value = "on";
+        }
+    });
+
+    // Redraw when you hit button
     d3.select("#submit").on("click", function () {
         // Redraw the graph on button click
         show_loading();
         unpin_all_nodes();
         update_connection_limit_redraw(
-            d3.select("#connectionlimit").node().value,
-            d3.select("#explicitlimit").node().value
+            connection_limit = d3.select("#connectionlimit").node().value,
+            explicit_limit = d3.select("#explicitlimit").node().value,
+            charge_strength = d3.select("#chargestrength").node().value,
+            alpha = d3.select("#alpha").node().value,
+            pin_candidates = (d3.select("#pincandidates").node().value == "on"),
         );
         dismiss_loading();
     });
@@ -140,13 +308,9 @@ Promise.all([
     const simulation = d3.forceSimulation(nodes)
         .force("link", d3.forceLink(edges).distance(standardLinkForceDistance).id(d => d.id))
         .force("center", d3.forceCenter(WIDTH / 2, HEIGHT / 2))
-        .force("x", d3.forceX())
         .force("y", d3.forceY())
-        .force("charge", d3.forceManyBody().strength(-100))
         .force("collision", d3.forceCollide().radius(15))
-        // .alphaTarget(1)
         .velocityDecay(.3)
-        // .alphaDecay(.1)
         .on("tick", ticked);
 
     // Define the arrowhead
@@ -178,22 +342,36 @@ Promise.all([
     d3.select("#unpinall").on("click", unpin_all_nodes);
 
     // Draw the node graph -------------------------------------------------------------
-    update_connection_limit_redraw(1, 5); // This is the default value for the connection & explicit limit
+    update_connection_limit_redraw(
+        max_connections = 1,
+        explicit_limit = 5,
+        charge_strength = 800,
+        alpha = 0.7,
+        pin_candidates = (d3.select("#pincandidates").node().value == "on"),
+    ); // This is the default values for the user settings
 
     // Node & Edge limiters ------------------------------------------------------------
-    function update_connection_limit_redraw(max_connections, explicit_limit) {
+    function update_connection_limit_redraw(max_connections, explicit_limit, charge_strength, alpha, pin_candidates) {
         console.log("filtering through for connection limit", new Date().toLocaleTimeString("en-US"))
+
+        // Initialize all user values
         d3.select("#connectionlimit-value").text(max_connections);
         d3.select("#connectionlimit").property("value", max_connections);
 
         d3.select("#explicitlimit-value").text(explicit_limit);
         d3.select("#explicitlimit").property("value", explicit_limit);
 
+        d3.select("#chargestrength-value").text(charge_strength);
+        d3.select("#chargestrength").property("value", charge_strength);
+
+        d3.select("#alpha-value").text(alpha);
+        d3.select("#alpha").property("value", alpha);
+
+        // Filter through based on what user selected
         let limited_nodes = new Array();
         let limited_edges = new Array();
 
-        candidates = Array.from(["P80000722", "P80001571"]); // hard-code biden & trump IDs to not get extraneous candidates
-        candidates.forEach(candidate => {
+        CANDIDATE_IDS.forEach((candidate, index) => {
             let frontier_nodes = new Array();
             frontier_nodes.push(candidate);
             let explored_nodes = new Set();
@@ -224,18 +402,31 @@ Promise.all([
                 );
 
                 limited_edges.push(...top_connections);
-                limited_nodes.push(...raw_nodes.filter(n => n.id == current_node_id));
+                limited_nodes.push(
+                    ...raw_nodes.filter(n => n.id == current_node_id)
+                        .map(n => {
+                            n.associated_candidate = index;
+                            return n;
+                        })
+                );
             }
         });
 
         // // Need to make sure you also capture the nodes for the leaf endpoints
-        limited_nodes.push(...raw_nodes.filter(n => limited_edges.map(e => {
-            if (e.source.constructor === ({}).constructor) {
-                return e.source.id;
-            } else {
-                return e.source;
-            }
-        }).includes(n.id)));
+        limited_nodes.push(
+            ...raw_nodes
+                .filter(n => limited_edges.map(e => {
+                    if (e.source.constructor === ({}).constructor) {
+                        return e.source.id;
+                    } else {
+                        return e.source;
+                    }
+                }).includes(n.id))
+                .map(n => {
+                    n.associated_candidate = CANDIDATE_IDS.length;
+                    return n;
+                })
+        );
 
         nodes = unique(limited_nodes, ["id"]);
         edges = limited_edges;
@@ -245,11 +436,11 @@ Promise.all([
         // console.log("edges", edges)
 
         console.log("redrawing", new Date().toLocaleTimeString("en-US"))
-        redraw();
+        redraw(charge_strength, alpha, pin_candidates);
         console.log("redraw complete", new Date().toLocaleTimeString("en-US"))
     }
 
-    function redraw() {
+    function redraw(charge_strength, alpha, pin_candidates) {
         // Remove/add nodes
         node = node.data(nodes, function (d) { return d.id });
         node.exit().remove();
@@ -334,9 +525,19 @@ Promise.all([
             .on("mousemove", move_tooltip);
 
         // Update and restart the simulation.
+        if (pin_candidates) {
+            pin_candidates_to_top();
+        }
+
         simulation.nodes(nodes);
         simulation.force("link").links(edges);
-        simulation.alpha(0.3).restart();
+
+        let horizontal_spacing = WIDTH / (CANDIDATE_IDS.length + 1);
+        simulation
+            .force("charge", d3.forceManyBody().strength(Number(-charge_strength)))
+            .force("x", d3.forceX().x(n => horizontal_spacing * (n.associated_candidate + 1)))
+            .alpha(Number(alpha))
+            .restart();
     }
 
     // Tick function -------------------------------------------------------------------
@@ -373,7 +574,24 @@ Promise.all([
             n.fx = null;
             n.fy = null;
         })
-        redraw();
+        redraw(
+            charge_strength = d3.select("#chargestrength").node().value,
+            alpha = d3.select("#alpha").node().value,
+            pin_candidates = false,
+        );
+    }
+
+    function pin_candidates_to_top() {
+        let horizontal_spacing = WIDTH / (CANDIDATE_IDS.length + 1);
+
+        nodes.filter(n => CANDIDATE_IDS.includes(n.id))
+            .forEach((node, index) => {
+                svg.select("#shape-" + node.id)
+                    .classed("pinned", true);
+
+                node.fx = horizontal_spacing * (index + 1);
+                node.fy = 10;
+            })
     }
 
     // Node interaction controllers ----------------------------------------------------
@@ -558,23 +776,59 @@ const dateParser = d3.timeParse("%Y-%m-%dT%H:%M:%S.%L%L%Z");
 const dateFormatter = d3.timeFormat("%B %-e, %Y %I:%M %p");
 const currencyFormatter = d3.format("$,.2f")
 
+function disbursements_info(data) {
+    return (
+        "Source: " + data.source.name + "<br>" +
+        "Target: " + data.target.name + "<br>" +
+        "Type: Disbursements<br>" +
+        "Total: " + currencyFormatter(data.total) + "<br>" +
+        "Count: " + data.count + "<br>" +
+        "Memo Total: " + currencyFormatter(data.memo_total) + "<br>" +
+        "Memo Count: " + data.memo_count
+    )
+}
+
+function receipt_info(data) {
+    // if (data.date === null) {
+    //     dateString = "null";
+    // } else if (dateParser(data.date) === null) {
+    //     dateString = "<parse error>";
+    // } else {
+    //     dateString = dateFormatter(dateParser(data.date));
+    // }
+
+    return (
+        "Source: " + data.source.name + "<br>" +
+        "Target: " + data.target.name + "<br>" +
+        "Type: Receipt<br>" +
+        "Quantity: " + currencyFormatter(data.quantity) + "<br>" +
+        "Date: " + dateFormatter(dateParser(data.date))
+    )
+}
+
+function principal_committee_info(data) {
+    return (
+        "Source: " + data.source.name + "<br>" +
+        "Target: " + data.target.name + "<br>" +
+        "Type: Principal Committee"
+    )
+}
+
 function display_edge_tooltip(event, data) {
-    if (data.date === null) {
-        dateString = "null";
-    } else if (dateParser(data.date) === null) {
-        dateString = "<parse error>";
+    var html = "error: unrecognized edge type";
+    if (data.type == "DISBURSEMENTS") {
+        html = disbursements_info(data);
+    } else if (data.type == "RECEIPT") {
+        html = receipt_info(data);
+    } else if (data.type == "PRINCIPAL_COMMITTEE") {
+        html = principal_committee_info(data);
     } else {
-        dateString = dateFormatter(dateParser(data.date));
+        console.log("Unrecognized edge type: ", data);
     }
 
     tooltip.style("transition-delay", "0s")
         .style("opacity", 1)
-        .html((
-            "Source: " + data.source.name + "<br>" +
-            "Target: " + data.target.name + "<br>" +
-            "Quantity: " + currencyFormatter(data.quantity) + "<br>" +
-            "Date: " + dateString
-        ));
+        .html(html);
 };
 
 // Context menu controllers ------------------------------------------------------------
@@ -638,7 +892,7 @@ function show_loading() {
     loadingScreen
         .style("opacity", 1)
         .style("left", WIDTH / 2 + "px")
-        .style("top", HEIGHT / 2 + "px")
+        .style("top", (_height - HEIGHT / 2) + "px")
         .html("Loading...");
 }
 
@@ -646,4 +900,19 @@ function dismiss_loading() {
     console.log("dismiss loading")
     loadingScreen
         .style("opacity", 0);
+}
+
+// Information about sliders -----------------------------------------------------------
+function show_info_hover(event, element) {
+    element
+        .style("left", (event.pageX + 30) + "px")
+        .style("top", (event.pageY) + "px")
+        .style("transition-delay", "0s");
+}
+
+function hide_info_hover(element) {
+    element
+        .style("transition-delay", "0.5s")
+        .style("left", -10000 + "px") // Move way out of way
+        .style("top", -10000 + "px");
 }
