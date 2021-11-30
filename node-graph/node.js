@@ -19,6 +19,8 @@ const HEIGHT = d3.max([_height - MARGINS.top - MARGINS.bottom - 130, MIN_HEIGHT]
 const verticalConstraints = [MARGINS.top + 100, HEIGHT - MARGINS.bottom - 30];
 const horizontalConstraints = [MARGINS.left + 10, WIDTH - MARGINS.right - 30];
 
+const CANDIDATE_IDS = Array.from(["P80000722", "P80001571"]); // hard-code biden & trump IDs to not get extraneous candidates
+
 // Create SVG & DOM structure ----------------------------------------------------------
 var svg = d3.select("#main_content_wrap")
     .append("svg")
@@ -109,11 +111,25 @@ d3.select("#alpha-info")
     .on("mouseover", event => show_info_hover(event, alphainfo))
     .on("mouseout", _ => hide_info_hover(alphainfo));
 
+var pincandidatesinfo = d3.select("body")
+    .append("div")
+    .append("foreignObject")
+    .attr("class", "info")
+    .html((
+        "<h3>Pin Candidates</h3>" +
+        "Whether to pin candidates to the top of the screen for easier viewing."
+    ));
+
+d3.select("#pincandidates-info")
+    .on("mouseover", event => show_info_hover(event, pincandidatesinfo))
+    .on("mouseout", _ => hide_info_hover(pincandidatesinfo));
+
 // Make sure they are initially hidden
 hide_info_hover(connectionlimitinfo);
 hide_info_hover(explicitlimitinfo);
 hide_info_hover(chargestrengthinfo);
 hide_info_hover(alphainfo);
+hide_info_hover(pincandidatesinfo);
 
 // Shape sizes -------------------------------------------------------------------------
 // Circle nodes
@@ -265,6 +281,14 @@ Promise.all([
         d3.select("#alpha-value").node().textContent = this.value;
     });
 
+    d3.select("#pincandidates").on("input", function () {
+        if (this.value == "on") {
+            this.value = "off";
+        } else {
+            this.value = "on";
+        }
+    });
+
     // Redraw when you hit button
     d3.select("#submit").on("click", function () {
         // Redraw the graph on button click
@@ -275,6 +299,7 @@ Promise.all([
             explicit_limit = d3.select("#explicitlimit").node().value,
             charge_strength = d3.select("#chargestrength").node().value,
             alpha = d3.select("#alpha").node().value,
+            pin_candidates = (d3.select("#pincandidates").node().value == "on"),
         );
         dismiss_loading();
     });
@@ -322,11 +347,15 @@ Promise.all([
 
     // Draw the node graph -------------------------------------------------------------
     update_connection_limit_redraw(
-        max_connections = 1, explicit_limit = 5, charge_strength = 100, alpha = 0.3
+        max_connections = 1,
+        explicit_limit = 5,
+        charge_strength = 800,
+        alpha = 0.7,
+        pin_candidates = (d3.select("#pincandidates").node().value == "on"),
     ); // This is the default values for the user settings
 
     // Node & Edge limiters ------------------------------------------------------------
-    function update_connection_limit_redraw(max_connections, explicit_limit, charge_strength, alpha) {
+    function update_connection_limit_redraw(max_connections, explicit_limit, charge_strength, alpha, pin_candidates) {
         console.log("filtering through for connection limit", new Date().toLocaleTimeString("en-US"))
 
         // Initialize all user values
@@ -346,8 +375,8 @@ Promise.all([
         let limited_nodes = new Array();
         let limited_edges = new Array();
 
-        candidates = Array.from(["P80000722", "P80001571"]); // hard-code biden & trump IDs to not get extraneous candidates
-        candidates.forEach(candidate => {
+        // candidates = Array.from(["P80000722", "P80001571"]); // hard-code biden & trump IDs to not get extraneous candidates
+        CANDIDATE_IDS.forEach(candidate => {
             let frontier_nodes = new Array();
             frontier_nodes.push(candidate);
             let explored_nodes = new Set();
@@ -399,11 +428,11 @@ Promise.all([
         // console.log("edges", edges)
 
         console.log("redrawing", new Date().toLocaleTimeString("en-US"))
-        redraw(charge_strength, alpha);
+        redraw(charge_strength, alpha, pin_candidates);
         console.log("redraw complete", new Date().toLocaleTimeString("en-US"))
     }
 
-    function redraw(charge_strength, alpha) {
+    function redraw(charge_strength, alpha, pin_candidates) {
         // Remove/add nodes
         node = node.data(nodes, function (d) { return d.id });
         node.exit().remove();
@@ -488,6 +517,11 @@ Promise.all([
             .on("mousemove", move_tooltip);
 
         // Update and restart the simulation.
+        if (pin_candidates) {
+            pin_candidates_to_top();
+        } else {
+            // unpin_all_nodes();
+        }
         simulation.nodes(nodes);
         simulation.force("link").links(edges);
         simulation
@@ -532,8 +566,27 @@ Promise.all([
         })
         redraw(
             charge_strength = d3.select("#chargestrength").node().value,
-            alpha = d3.select("#alpha").node().value
+            alpha = d3.select("#alpha").node().value,
+            pin_candidates = false,
         );
+    }
+
+    function pin_candidates_to_top() {
+        let horizontal_spacing = WIDTH / (CANDIDATE_IDS.length + 1);
+
+        // CANDIDATE_IDS.forEach((candidate_id, index) => {
+        //     svg.select("#shape-" + candidate_id)
+        //         .classed("pinned", true);
+        // });
+
+        nodes.filter(n => CANDIDATE_IDS.includes(n.id))
+            .forEach((node, index) => {
+                svg.select("#shape-" + node.id)
+                    .classed("pinned", true);
+
+                node.fx = horizontal_spacing * (index + 1);
+                node.fy = 10;
+            })
     }
 
     // Node interaction controllers ----------------------------------------------------
