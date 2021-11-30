@@ -44,7 +44,7 @@ ellipse.individual {
 /* Links */
 .edges path {
     stroke: gray;
-    stroke-width: 1.5;
+    stroke-width: 1.5px;
 }
 
 #arrowhead {

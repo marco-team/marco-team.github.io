@@ -662,23 +662,59 @@ const dateParser = d3.timeParse("%Y-%m-%dT%H:%M:%S.%L%L%Z");
 const dateFormatter = d3.timeFormat("%B %-e, %Y %I:%M %p");
 const currencyFormatter = d3.format("$,.2f")
 
+function disbursements_info(data) {
+    return (
+        "Source: " + data.source.name + "<br>" +
+        "Target: " + data.target.name + "<br>" +
+        "Type: Disbursements<br>" +
+        "Total: " + currencyFormatter(data.total) + "<br>" +
+        "Count: " + data.count + "<br>" +
+        "Memo Total: " + currencyFormatter(data.memo_total) + "<br>" +
+        "Memo Count: " + data.memo_count
+    )
+}
+
+function receipt_info(data) {
+    // if (data.date === null) {
+    //     dateString = "null";
+    // } else if (dateParser(data.date) === null) {
+    //     dateString = "<parse error>";
+    // } else {
+    //     dateString = dateFormatter(dateParser(data.date));
+    // }
+
+    return (
+        "Source: " + data.source.name + "<br>" +
+        "Target: " + data.target.name + "<br>" +
+        "Type: Receipt<br>" +
+        "Quantity: " + currencyFormatter(data.quantity) + "<br>" +
+        "Date: " + dateFormatter(dateParser(data.date))
+    )
+}
+
+function principal_committee_info(data) {
+    return (
+        "Source: " + data.source.name + "<br>" +
+        "Target: " + data.target.name + "<br>" +
+        "Type: Principal Committee"
+    )
+}
+
 function display_edge_tooltip(event, data) {
-    if (data.date === null) {
-        dateString = "null";
-    } else if (dateParser(data.date) === null) {
-        dateString = "<parse error>";
+    var html = "error: unrecognized edge type";
+    if (data.type == "DISBURSEMENTS") {
+        html = disbursements_info(data);
+    } else if (data.type == "RECEIPT") {
+        html = receipt_info(data);
+    } else if (data.type == "PRINCIPAL_COMMITTEE") {
+        html = principal_committee_info(data);
     } else {
-        dateString = dateFormatter(dateParser(data.date));
+        console.log("Unrecognized edge type: ", data);
     }
 
     tooltip.style("transition-delay", "0s")
         .style("opacity", 1)
-        .html((
-            "Source: " + data.source.name + "<br>" +
-            "Target: " + data.target.name + "<br>" +
-            "Quantity: " + currencyFormatter(data.quantity) + "<br>" +
-            "Date: " + dateString
-        ));
+        .html(html);
 };
 
 // Context menu controllers ------------------------------------------------------------
