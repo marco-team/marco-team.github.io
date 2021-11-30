@@ -1,6 +1,6 @@
 // Screen sizing -----------------------------------------------------------------------
 const MIN_WIDTH = 300;
-const MIN_HEIGHT = 300;
+const MIN_HEIGHT = 800;
 const MARGINS = {
     'top': 10, 'bottom': 10, 'left': 10, 'right': 10
 };
@@ -308,13 +308,9 @@ Promise.all([
     const simulation = d3.forceSimulation(nodes)
         .force("link", d3.forceLink(edges).distance(standardLinkForceDistance).id(d => d.id))
         .force("center", d3.forceCenter(WIDTH / 2, HEIGHT / 2))
-        .force("x", d3.forceX())
         .force("y", d3.forceY())
-        // .force("charge", d3.forceManyBody().strength(-100))
         .force("collision", d3.forceCollide().radius(15))
-        // .alphaTarget(1)
         .velocityDecay(.3)
-        // .alphaDecay(.1)
         .on("tick", ticked);
 
     // Define the arrowhead
@@ -375,8 +371,7 @@ Promise.all([
         let limited_nodes = new Array();
         let limited_edges = new Array();
 
-        // candidates = Array.from(["P80000722", "P80001571"]); // hard-code biden & trump IDs to not get extraneous candidates
-        CANDIDATE_IDS.forEach(candidate => {
+        CANDIDATE_IDS.forEach((candidate, index) => {
             let frontier_nodes = new Array();
             frontier_nodes.push(candidate);
             let explored_nodes = new Set();
@@ -407,18 +402,31 @@ Promise.all([
                 );
 
                 limited_edges.push(...top_connections);
-                limited_nodes.push(...raw_nodes.filter(n => n.id == current_node_id));
+                limited_nodes.push(
+                    ...raw_nodes.filter(n => n.id == current_node_id)
+                        .map(n => {
+                            n.associated_candidate = index;
+                            return n;
+                        })
+                );
             }
         });
 
         // // Need to make sure you also capture the nodes for the leaf endpoints
-        limited_nodes.push(...raw_nodes.filter(n => limited_edges.map(e => {
-            if (e.source.constructor === ({}).constructor) {
-                return e.source.id;
-            } else {
-                return e.source;
-            }
-        }).includes(n.id)));
+        limited_nodes.push(
+            ...raw_nodes
+                .filter(n => limited_edges.map(e => {
+                    if (e.source.constructor === ({}).constructor) {
+                        return e.source.id;
+                    } else {
+                        return e.source;
+                    }
+                }).includes(n.id))
+                .map(n => {
+                    n.associated_candidate = CANDIDATE_IDS.length;
+                    return n;
+                })
+        );
 
         nodes = unique(limited_nodes, ["id"]);
         edges = limited_edges;
@@ -519,13 +527,15 @@ Promise.all([
         // Update and restart the simulation.
         if (pin_candidates) {
             pin_candidates_to_top();
-        } else {
-            // unpin_all_nodes();
         }
+
         simulation.nodes(nodes);
         simulation.force("link").links(edges);
+
+        let horizontal_spacing = WIDTH / (CANDIDATE_IDS.length + 1);
         simulation
             .force("charge", d3.forceManyBody().strength(Number(-charge_strength)))
+            .force("x", d3.forceX().x(n => horizontal_spacing * (n.associated_candidate + 1)))
             .alpha(Number(alpha))
             .restart();
     }
@@ -573,11 +583,6 @@ Promise.all([
 
     function pin_candidates_to_top() {
         let horizontal_spacing = WIDTH / (CANDIDATE_IDS.length + 1);
-
-        // CANDIDATE_IDS.forEach((candidate_id, index) => {
-        //     svg.select("#shape-" + candidate_id)
-        //         .classed("pinned", true);
-        // });
 
         nodes.filter(n => CANDIDATE_IDS.includes(n.id))
             .forEach((node, index) => {
