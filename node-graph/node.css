@@ -53,7 +53,7 @@ ellipse.individual {
 }
 
 /* Tooltip */
-#tooltip, #loading {
+#tooltip, #loading, .info {
     position: absolute;
     opacity: 0;
     text-transform: capitalize;

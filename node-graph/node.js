@@ -46,6 +46,44 @@ var loadingScreen = d3.select("body")
     .append("foreignObject")
     .attr("id", "loading");
 
+// Initialize info hovers
+var connectionlimitinfo = d3.select("body")
+    .append("div")
+    .append("foreignObject")
+    .attr("class", "info")
+    .style("text-transform", "none")
+    .style("opacity", 1)
+    .html((
+        "<h3>Connection Limit</h3>" +
+        "Controls the maximum number of incoming edges for each node. Think of this " +
+        "as a proxy for controlling the branching factor of the graph.<br><br>" +
+        "When there are more edges than this limit allows for, the ones with the " +
+        "largest disbursement/receipt quantity are displayed."
+    ));
+
+d3.select("#connectionlimit-info")
+    .on("mouseover", event => show_info_hover(event, connectionlimitinfo))
+    .on("mouseout", _ => hide_info_hover(connectionlimitinfo));
+
+var explicitlimitinfo = d3.select("body")
+    .append("div")
+    .append("foreignObject")
+    .attr("class", "info")
+    .style("text-transform", "none")
+    .style("opacity", 1)
+    .html((
+        "<h3>Candidate Limit</h3>" +
+        "Controls the approximate maximum number of nodes attached to each candidate " +
+        "node. Think of this as a proxy for controlling the depth of the graph.<br><br>" +
+        "When there are more nodes than this limit allows for, the ones closest to " +
+        "the candidate are displayed."
+    ));
+
+d3.select("#explicitlimit-info")
+    .on("mouseover", event => show_info_hover(event, explicitlimitinfo))
+    .on("mouseout", _ => hide_info_hover(explicitlimitinfo));
+
+
 // Shape sizes -------------------------------------------------------------------------
 // Circle nodes
 const circleRadius = 10;
@@ -646,4 +684,19 @@ function dismiss_loading() {
     console.log("dismiss loading")
     loadingScreen
         .style("opacity", 0);
+}
+
+// Information about sliders -----------------------------------------------------------
+function show_info_hover(event, element) {
+    element
+        .style("left", (event.pageX + 30) + "px")
+        .style("top", (event.pageY) + "px")
+        .style("transition-delay", "0s");
+}
+
+function hide_info_hover(element) {
+    element
+        .style("transition-delay", "0.5s")
+        .style("left", -10000 + "px") // Move way out of way
+        .style("top", -10000 + "px");
 }
