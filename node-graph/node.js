@@ -51,8 +51,6 @@ var connectionlimitinfo = d3.select("body")
     .append("div")
     .append("foreignObject")
     .attr("class", "info")
-    .style("text-transform", "none")
-    .style("opacity", 1)
     .html((
         "<h3>Connection Limit</h3>" +
         "Controls the maximum number of incoming edges for each node. Think of this " +
@@ -69,8 +67,6 @@ var explicitlimitinfo = d3.select("body")
     .append("div")
     .append("foreignObject")
     .attr("class", "info")
-    .style("text-transform", "none")
-    .style("opacity", 1)
     .html((
         "<h3>Candidate Limit</h3>" +
         "Controls the approximate maximum number of nodes attached to each candidate " +
@@ -83,9 +79,41 @@ d3.select("#explicitlimit-info")
     .on("mouseover", event => show_info_hover(event, explicitlimitinfo))
     .on("mouseout", _ => hide_info_hover(explicitlimitinfo));
 
+var chargestrengthinfo = d3.select("body")
+    .append("div")
+    .append("foreignObject")
+    .attr("class", "info")
+    .html((
+        "<h3>Charge Strength</h3>" +
+        "Controls the magnitude of the node graph charge force strength. Think of this " +
+        " as the size of the mini \"explosion\" that gets all of the nodes moving to start.<br><br>" +
+        "This may need to be adjusted as you increase/decrease the number of nodes to " +
+        "get a good looking layout."
+    ));
+
+d3.select("#chargestrength-info")
+    .on("mouseover", event => show_info_hover(event, chargestrengthinfo))
+    .on("mouseout", _ => hide_info_hover(chargestrengthinfo));
+
+var alphainfo = d3.select("body")
+    .append("div")
+    .append("foreignObject")
+    .attr("class", "info")
+    .html((
+        "<h3>Alpha</h3>" +
+        "The alpha parameter can be thought of as a way to subdue the movement in " +
+        "the graph. Set it to 0 to have no movement."
+    ));
+
+d3.select("#alpha-info")
+    .on("mouseover", event => show_info_hover(event, alphainfo))
+    .on("mouseout", _ => hide_info_hover(alphainfo));
+
 // Make sure they are initially hidden
 hide_info_hover(connectionlimitinfo);
 hide_info_hover(explicitlimitinfo);
+hide_info_hover(chargestrengthinfo);
+hide_info_hover(alphainfo);
 
 // Shape sizes -------------------------------------------------------------------------
 // Circle nodes

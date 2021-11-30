@@ -96,3 +96,8 @@ ellipse.individual {
 .legend span.spacer {
     width: 30px;
 }
+
+.info {
+    text-transform: none;
+    opacity: 1;
+}
