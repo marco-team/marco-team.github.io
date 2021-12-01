@@ -39,6 +39,7 @@ permalink: /node-graph/
         </label>
 <!--         <input type="range" id="chargealpha" name="chargealpha" min=0 max=1 step=0.05 class="slider"><br> -->
         <h1>Just some text here</h1>
+        <input>
         <label for="pincandidates">
             Pin Candidates
             <i class="material-icons" id="pincandidates-info">info_outline</i>
