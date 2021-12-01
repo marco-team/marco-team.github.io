@@ -782,7 +782,7 @@ function constrain(x, limits) {
 
 // Tooltip controllers -----------------------------------------------------------------
 function tooltipTimeout(elapsed) {
-    if (elapsed > 5000) {
+    if (elapsed > 10_000) { // ms
         hide_tooltip();
         tooltipTimer.stop();
     };
