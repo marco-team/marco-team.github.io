@@ -40,14 +40,14 @@ permalink: /node-graph/
     <span style="width: 50px"></span> 
     <input type="checkbox" id="pincandidates" name="pincandidates" checked>
     <br>
-    <label for="alpha">
+    <label for="chargealpha">
         Alpha 
-        <i class="material-icons" id="alpha-info">info_outline</i>
+        <i class="material-icons" id="chargealpha-info">info_outline</i>
         <span style="width: 78px"></span> 
         = 
-        <span id="alpha-value" class="threedigit"></span>
+        <span id="chargealpha-value" class="threedigit"></span>
     </label>
-    <input type="range" id="alpha" name="alpha" min=0 max=1 step=0.05 class="slider">
+    <input type="range" id="chargealpha" name="chargealpha" min=0 max=1 step=0.05 class="slider">
     <br>
     <button type="button" id="pinall">Pin All Nodes</button>
     <button type="button" id="unpinall">Unpin All Nodes</button>
