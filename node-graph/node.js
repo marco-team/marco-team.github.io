@@ -284,7 +284,7 @@ Promise.all([
     });
 
     d3.select("#chargealpha").on("input", function () {
-        d3.select("#chargealpha-value").node().textContent = this.value;
+        d3.select("#chargealpha-value").node().textContent = Number(this.value).toFixed(2);
     });
 
     d3.select("#pincandidates").on("input", function () {
@@ -352,7 +352,7 @@ Promise.all([
         max_connections = 1,
         explicit_limit = 5,
         charge_strength = 800,
-        alpha = 0.7,
+        alpha = "0.70",
         pin_candidates = (d3.select("#pincandidates").node().value == "on"),
     ); // This is the default values for the user settings
 
