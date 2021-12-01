@@ -260,11 +260,12 @@ show_loading();
 
 Promise.all([
     d3.json("../data/nodes.json"),
-    d3.json("../data/edges.json")
+    d3.json("../data/edges.json"),
+    d3.json("../data/similar_committees.json")
 ]).then(function (data) {
     dismiss_loading();
     console.log("data loaded!", new Date().toLocaleTimeString("en-US"))
-    let [raw_nodes, raw_edges] = data;
+    let [raw_nodes, raw_edges, similar_committees] = data;
 
     let nodes = new Array();
     let edges = new Array();
@@ -727,6 +728,35 @@ Promise.all([
             .alpha(.05)
             .restart()
     };
+
+    // To dislpay tooltip
+    function display_node_tooltip(event, data) {
+        let related_ids = similar_committees[data.id];
+
+        var display_str = (
+            "<h3>" + data.name + "</h3>" +
+            "Type: " + data.type + "<br>" +
+            "ID: " + data.id + "<br>"
+        );
+
+        if (related_ids != undefined) {
+            let related = raw_nodes
+                .filter(n => related_ids.includes(n.id) && n.id != data.id)
+                .sort((a, b) => related_ids.indexOf(a.id) - related_ids.indexOf(b.id))
+                .slice(0, 5)
+                .map((n, index) => (index + 1) + ". " + n.name + " (" + n.id + ")")
+                .join("<br>&emsp;");
+
+            display_str = display_str + "<br><h4>Top 5 Similar Committees</h4>&emsp;" + related;
+        }
+
+        tooltip
+            .style("transition-delay", "0s")
+            .style("opacity", 1)
+            .html(display_str);
+
+        tooltipTimer.restart(tooltipTimeout)
+    };
 }).catch(function (error) {
     console.log(error);
 });
@@ -759,19 +789,6 @@ function tooltipTimeout(elapsed) {
 }
 
 const tooltipTimer = d3.timer(tooltipTimeout);
-
-function display_node_tooltip(event, data) {
-    tooltip
-        .style("transition-delay", "0s")
-        .style("opacity", 1)
-        .html((
-            "<h3>" + data.name + "</h3>" +
-            "Type: " + data.type + "<br>" +
-            "ID: " + data.id + "<br>"
-        ));
-
-    tooltipTimer.restart(tooltipTimeout)
-};
 
 function hide_tooltip() {
     // console.log("mouseout", event.detail)
