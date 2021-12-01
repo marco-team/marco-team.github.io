@@ -5,61 +5,55 @@ permalink: /node-graph/
 # Node Graph
 
 <form action="" class="legend">
-    <label for="connectionlimit">
-        Connection Limit 
-        <i class="material-icons" id="connectionlimit-info">info_outline</i> 
-        <span style="width: 0px"></span> 
-        = 
-        <span id="connectionlimit-value" class="threedigit"></span>
-    </label>
-    <input type="range" id="connectionlimit" name="connectionlimit" min=0 max=10 step=1 class="slider">
-    <br>
+    <form action="" class="legend">
+        <label for="connectionlimit">
+            Connection Limit 
+            <i class="material-icons" id="connectionlimit-info">info_outline</i> 
+            <span style="width: 0px"></span> 
+            = 
+            <span id="connectionlimit-value" class="threedigit"></span>
+        </label>
+        <input type="range" id="connectionlimit" name="connectionlimit" min=0 max=10 step=1 class="slider"><br>
+        
+        <label for="explicitlimit">
+            Node Limit
+            <i class="material-icons" id="explicitlimit-info">info_outline</i>
+            <span style="width: 42px"></span> 
+            = 
+            <span id="explicitlimit-value" class="threedigit"></span>
+        </label>
+        <input type="range" id="explicitlimit" name="explicitlimit" min=2 max=100 step=1 class="slider"><br><br>
 
-    <label for="explicitlimit">
-        Node Limit
-        <i class="material-icons" id="explicitlimit-info">info_outline</i>
-        <span style="width: 42px"></span> 
-        = 
-        <span id="explicitlimit-value" class="threedigit"></span>
-    </label>
-    <input type="range" id="explicitlimit" name="explicitlimit" min=2 max=100 step=1 class="slider">
-    <br><br>
+        <label for="chargestrength">
+            Charge Strength 
+            <i class="material-icons" id="chargestrength-info">info_outline</i>
+            <span style="width: 1px"></span> 
+            = 
+            <span id="chargestrength-value" class="threedigit"></span>
+        </label>
+        <input type="range" id="chargestrength" name="chargestrength" min=0 max=999 step=1 class="slider"><br>
 
-    <label for="chargestrength">
-        Charge Strength 
-        <i class="material-icons" id="chargestrength-info">info_outline</i>
-        <span style="width: 1px"></span> 
-        = 
-        <span id="chargestrength-value" class="threedigit"></span>
-    </label>
-    <input type="range" id="chargestrength" name="chargestrength" min=0 max=999 step=1 class="slider">
-    <br>
+        <label for="chargealpha">
+            Alpha 
+            <i class="material-icons" id="chargealpha-info">info_outline</i>
+            <span style="width: 78px"></span> 
+            = 
+            <span id="chargealpha-value" class="threedigit"></span>
+        </label>
+        <input type="range" id="chargealpha" name="chargealpha" min=0 max=1 step=0.05 class="slider"><br>
 
-    <label for="chargealpha">
-        Alpha 
-        <i class="material-icons" id="chargealpha-info">info_outline</i>
-        <span style="width: 78px"></span> 
-        = 
-        <span id="chargealpha-value" class="threedigit"></span>
-    </label>
+        <label for="pincandidates">
+            Pin Candidates
+            <i class="material-icons" id="pincandidates-info">info_outline</i>
+        </label>
+        <span style="width: 50px"></span> 
+        <input type="checkbox" id="pincandidates" name="pincandidates" checked><br>
 
-    <input type="range" id="chargealpha" name="chargealpha" min=0 max=1 step=0.05 class="slider" />
+        <button type="button" id="pinall">Pin All Nodes</button>
+        <button type="button" id="unpinall">Unpin All Nodes</button><br><br>
 
-    <br>
-
-    <button type="button" id="pinall">Pin All Nodes</button>
-    <button type="button" id="unpinall">Unpin All Nodes</button>
-    <br>
-
-    <label for="pincandidates">
-        Pin Candidates
-        <i class="material-icons" id="pincandidates-info">info_outline</i>
-    </label>
-    <span style="width: 50px"></span> 
-    <input type="checkbox" id="pincandidates" name="pincandidates" checked>
-    <br><br>
-
-    <button type="button" id="submit">Refresh</button>
+        <button type="button" id="submit">Refresh</button>
+    </form>
 </form>
 
 <script type="text/javascript" src="https://d3js.org/d3.v6.min.js"></script>
