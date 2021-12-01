@@ -42,9 +42,9 @@ permalink: /node-graph/
         = 
         <span id="chargealpha-value" class="threedigit"></span>
     </label>
-    
-    <input type="range" id="chargealpha" name="chargealpha" min=0 max=1 step=0.05 class="slider">
-    
+
+    <input type="range" id="chargealpha" name="chargealpha" min=0 max=1 step=0.05 class="slider" />
+
     <br>
 
     <button type="button" id="pinall">Pin All Nodes</button>
