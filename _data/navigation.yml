@@ -1,8 +1,5 @@
 - title: Home
   url: /
-  
-- title: About
-  url: /about/
 
 - title: Node Graph
   url: /node-graph/
@@ -12,3 +9,6 @@
 
 - title: Methodology
   url: /methodology/
+
+# - title: Contributors
+#   url: /contributors/
