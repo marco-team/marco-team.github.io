@@ -15,9 +15,9 @@ permalink: /node-graph/
     <input type="range" id="connectionlimit" name="connectionlimit" min=0 max=10 step=1 class="slider">
     <br>
     <label for="explicitlimit">
-        Candidate Limit 
+        Node Limit
         <i class="material-icons" id="explicitlimit-info">info_outline</i>
-        <span style="width: 14px"></span> 
+        <span style="width: 44px"></span> 
         = 
         <span id="explicitlimit-value" class="threedigit"></span>
     </label>
