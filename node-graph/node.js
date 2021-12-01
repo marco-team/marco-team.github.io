@@ -192,7 +192,7 @@ const zoomLinkForceDistance = 350;
 var legend = d3.select("#main_content")
     .append("svg")
     .attr("width", WIDTH)
-    .attr("height", 85)
+    .attr("height", 90)
     .attr("id", "legend")
     .append("g")
     .attr("transform", "translate(20, 20)");

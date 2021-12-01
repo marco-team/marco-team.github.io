@@ -8,7 +8,7 @@ permalink: /node-graph/
     <label for="connectionlimit">
         Connection Limit 
         <i class="material-icons" id="connectionlimit-info">info_outline</i> 
-        <span style="width: 5px"></span> 
+        <span style="width: 0px"></span> 
         = 
         <span id="connectionlimit-value" class="threedigit"></span>
     </label>
@@ -17,7 +17,7 @@ permalink: /node-graph/
     <label for="explicitlimit">
         Node Limit
         <i class="material-icons" id="explicitlimit-info">info_outline</i>
-        <span style="width: 44px"></span> 
+        <span style="width: 42px"></span> 
         = 
         <span id="explicitlimit-value" class="threedigit"></span>
     </label>
@@ -27,7 +27,7 @@ permalink: /node-graph/
     <label for="chargestrength">
         Charge Strength 
         <i class="material-icons" id="chargestrength-info">info_outline</i>
-        <span style="width: 14px"></span> 
+        <span style="width: 1px"></span> 
         = 
         <span id="chargestrength-value" class="threedigit"></span>
     </label>
@@ -36,7 +36,7 @@ permalink: /node-graph/
     <label for="alpha">
         Alpha 
         <i class="material-icons" id="alpha-info">info_outline</i>
-        <span style="width: 79px"></span> 
+        <span style="width: 78px"></span> 
         = 
         <span id="alpha-value" class="threedigit"></span>
     </label>
@@ -46,7 +46,7 @@ permalink: /node-graph/
         Pin Candidates
         <i class="material-icons" id="pincandidates-info">info_outline</i>
     </label>
-    <span style="width: 60px"></span> 
+    <span style="width: 50px"></span> 
     <input type="checkbox" id="pincandidates" name="pincandidates" checked>
     <br>
     <button type="button" id="pinall">Pin All Nodes</button>
