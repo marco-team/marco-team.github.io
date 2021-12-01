@@ -33,6 +33,13 @@ permalink: /node-graph/
     </label>
     <input type="range" id="chargestrength" name="chargestrength" min=0 max=999 step=1 class="slider">
     <br>
+    <label for="pincandidates">
+        Pin Candidates
+        <i class="material-icons" id="pincandidates-info">info_outline</i>
+    </label>
+    <span style="width: 50px"></span> 
+    <input type="checkbox" id="pincandidates" name="pincandidates" checked>
+    <br>
     <label for="alpha">
         Alpha 
         <i class="material-icons" id="alpha-info">info_outline</i>
@@ -41,13 +48,6 @@ permalink: /node-graph/
         <span id="alpha-value" class="threedigit"></span>
     </label>
     <input type="range" id="alpha" name="alpha" min=0 max=1 step=0.05 class="slider">
-    <br>
-    <label for="pincandidates">
-        Pin Candidates
-        <i class="material-icons" id="pincandidates-info">info_outline</i>
-    </label>
-    <span style="width: 50px"></span> 
-    <input type="checkbox" id="pincandidates" name="pincandidates" checked>
     <br>
     <button type="button" id="pinall">Pin All Nodes</button>
     <button type="button" id="unpinall">Unpin All Nodes</button>
