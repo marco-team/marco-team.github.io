@@ -747,7 +747,7 @@ Promise.all([
                 .map((n, index) => (index + 1) + ". " + n.name + " (" + n.id + ")")
                 .join("<br>&emsp;");
 
-            display_str = display_str + "<br><h4>Top 5 Similar Committees</h4>&emsp;" + related;
+            display_str = display_str + "<br><h4>Top 5 Similar Committees<i class='material-icons' id='similarpacs-info'>info_outline</i></h4>&emsp;" + related;
         }
 
         tooltip
@@ -782,7 +782,7 @@ function constrain(x, limits) {
 
 // Tooltip controllers -----------------------------------------------------------------
 function tooltipTimeout(elapsed) {
-    if (elapsed > 3500) {
+    if (elapsed > 5000) {
         hide_tooltip();
         tooltipTimer.stop();
     };
@@ -803,6 +803,7 @@ function hide_tooltip() {
 function move_tooltip(event) {
     // console.log("mousemove", event.detail)
     tooltip
+        .style("opacity", 1)
         .style("left", (event.pageX + 10) + "px")
         .style("top", (event.pageY + 10) + "px");
     tooltipTimer.restart(tooltipTimeout);
