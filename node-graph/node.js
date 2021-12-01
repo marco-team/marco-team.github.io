@@ -192,7 +192,7 @@ const zoomLinkForceDistance = 350;
 var legend = d3.select("#main_content")
     .append("svg")
     .attr("width", WIDTH)
-    .attr("height", 85)
+    .attr("height", 90)
     .attr("id", "legend")
     .append("g")
     .attr("transform", "translate(20, 20)");
@@ -283,8 +283,8 @@ Promise.all([
         d3.select("#chargestrength-value").node().textContent = this.value;
     });
 
-    d3.select("#alpha").on("input", function () {
-        d3.select("#alpha-value").node().textContent = this.value;
+    d3.select("#chargealpha").on("input", function () {
+        d3.select("#chargealpha-value").node().textContent = this.value;
     });
 
     d3.select("#pincandidates").on("input", function () {
@@ -304,7 +304,7 @@ Promise.all([
             connection_limit = d3.select("#connectionlimit").node().value,
             explicit_limit = d3.select("#explicitlimit").node().value,
             charge_strength = d3.select("#chargestrength").node().value,
-            alpha = d3.select("#alpha").node().value,
+            alpha = d3.select("#chargealpha").node().value,
             pin_candidates = (d3.select("#pincandidates").node().value == "on"),
         );
         dismiss_loading();
@@ -370,8 +370,8 @@ Promise.all([
         d3.select("#chargestrength-value").text(charge_strength);
         d3.select("#chargestrength").property("value", charge_strength);
 
-        d3.select("#alpha-value").text(alpha);
-        d3.select("#alpha").property("value", alpha);
+        d3.select("#chargealpha-value").text(alpha);
+        d3.select("#chargealpha").property("value", alpha);
 
         // Filter through based on what user selected
         let limited_nodes = new Array();
@@ -592,7 +592,7 @@ Promise.all([
         })
         redraw(
             charge_strength = d3.select("#chargestrength").node().value,
-            alpha = d3.select("#alpha").node().value,
+            alpha = d3.select("#chargealpha").node().value,
             pin_candidates = false,
         );
     }
@@ -687,7 +687,9 @@ Promise.all([
                 return zoomLinkForceDistance
             } else return standardLinkForceDistance;
         });
-        simulation.alpha(.2).restart();
+        simulation
+            .alpha(.05)
+            .restart();
     };
 
     function unhighlight_node(node, edges) {
@@ -721,7 +723,9 @@ Promise.all([
 
         // Reset force link distance
         simulation.force("link").distance(standardLinkForceDistance);
-        simulation.alpha(.2).restart()
+        simulation
+            .alpha(.05)
+            .restart()
     };
 }).catch(function (error) {
     console.log(error);
