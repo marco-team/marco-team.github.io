@@ -508,12 +508,12 @@ Promise.all([
                 unhighlight_node(node, edges);
             })
             .on("mousemove", move_tooltip)
-            .on("dblclick", unpin_node)
-            .on("contextmenu", function (event, node) {
-                event.preventDefault();
-                hide_tooltip();
-                display_context_menu(event);
-            })
+            .on("dblclick", unpin_node);
+        // .on("contextmenu", function (event, node) {
+        //     event.preventDefault();
+        //     hide_tooltip();
+        //     display_context_menu(event);
+        // })
 
         // Remove/add edges
         link = link.data(edges, function (d) { return d.source.id + "-" + d.target.id; });
@@ -747,7 +747,12 @@ Promise.all([
                 .map((n, index) => (index + 1) + ". " + n.name + " (" + n.id + ")")
                 .join("<br>&emsp;");
 
-            display_str = display_str + "<br><h4>Top 5 Similar Committees<i class='material-icons' id='similarpacs-info'>info_outline</i></h4>&emsp;" + related;
+            let related_info = "<b>* Based primarily on occupactional makeup of donors</b>"
+
+            display_str = (
+                display_str + "<br><h4>Top 5 Similar Committees*</h4>&emsp;" +
+                related + "<br><br>" + related_info
+            );
         }
 
         tooltip
@@ -870,22 +875,22 @@ function display_edge_tooltip(event, data) {
 };
 
 // Context menu controllers ------------------------------------------------------------
-function display_context_menu(event) {
-    contextMenu
-        .style("opacity", 1)
-        .style("left", (event.pageX) + "px")
-        .style("top", (event.pageY) + "px")
-        .html(
-            "context menu<br>context menu"
-        );
-};
+// function display_context_menu(event) {
+//     contextMenu
+//         .style("opacity", 1)
+//         .style("left", (event.pageX) + "px")
+//         .style("top", (event.pageY) + "px")
+//         .html(
+//             "context menu<br>context menu"
+//         );
+// };
 
-function dismiss_context_menu() {
-    contextMenu
-        .style("left", -10000 + "px")
-        .style("top", -10000 + "px")
-        .style("opacity", 0);
-}
+// function dismiss_context_menu() {
+//     contextMenu
+//         .style("left", -10000 + "px")
+//         .style("top", -10000 + "px")
+//         .style("opacity", 0);
+// }
 
 // Node highlighter helpers ------------------------------------------------------------
 function get_neighboring_node_ids(nodeId, edges) {
