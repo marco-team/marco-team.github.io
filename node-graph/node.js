@@ -439,8 +439,6 @@ Promise.all([
         edges = limited_edges;
 
         console.log("connection limiting filtering complete (", nodes.length, " nodes, ", edges.length, " edges)", new Date().toLocaleTimeString("en-US"))
-        // console.log("nodes", nodes);
-        // console.log("edges", edges)
 
         console.log("redrawing", new Date().toLocaleTimeString("en-US"))
         redraw(charge_strength, alpha, pin_candidates);
@@ -556,7 +554,6 @@ Promise.all([
         });
 
         link.attr("d", function (d) {
-            // console.log(d.source, d.target)
             return "M" + d.source.x + "," + d.source.y + "L" + d.target.x + "," + d.target.y;
 
             // var dx = d.target.x - d.source.x,
@@ -613,7 +610,6 @@ Promise.all([
 
     // Node interaction controllers ----------------------------------------------------
     function dragstarted(event, node) {
-        // console.log("dragstarted", event.detail)
         if (!event.active) simulation.alphaTarget(0.3).restart();
         node.fx = node.x;
         node.fy = node.y;
@@ -627,7 +623,6 @@ Promise.all([
     };
 
     function dragended(event, node) {
-        // console.log("dragended", event.detail)
         if (!event.active) simulation.alphaTarget(0);
         if (node.fixed == true) {
             node.fx = node.x;
@@ -796,7 +791,6 @@ function tooltipTimeout(elapsed) {
 const tooltipTimer = d3.timer(tooltipTimeout);
 
 function hide_tooltip() {
-    // console.log("mouseout", event.detail)
     tooltip
         .style("transition-delay", "0.5s")
         .style("opacity", 0)
@@ -806,7 +800,6 @@ function hide_tooltip() {
 };
 
 function move_tooltip(event) {
-    // console.log("mousemove", event.detail)
     tooltip
         .style("opacity", 1)
         .style("left", (event.pageX + 10) + "px")
