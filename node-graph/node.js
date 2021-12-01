@@ -260,11 +260,12 @@ show_loading();
 
 Promise.all([
     d3.json("../data/nodes.json"),
-    d3.json("../data/edges.json")
+    d3.json("../data/edges.json"),
+    d3.json("../data/similar_committees.json")
 ]).then(function (data) {
     dismiss_loading();
     console.log("data loaded!", new Date().toLocaleTimeString("en-US"))
-    let [raw_nodes, raw_edges] = data;
+    let [raw_nodes, raw_edges, similar_committees] = data;
 
     let nodes = new Array();
     let edges = new Array();
@@ -284,7 +285,7 @@ Promise.all([
     });
 
     d3.select("#chargealpha").on("input", function () {
-        d3.select("#chargealpha-value").node().textContent = this.value;
+        d3.select("#chargealpha-value").node().textContent = Number(this.value).toFixed(2);
     });
 
     d3.select("#pincandidates").on("input", function () {
@@ -352,7 +353,7 @@ Promise.all([
         max_connections = 1,
         explicit_limit = 5,
         charge_strength = 800,
-        alpha = 0.7,
+        alpha = "0.70",
         pin_candidates = (d3.select("#pincandidates").node().value == "on"),
     ); // This is the default values for the user settings
 
@@ -438,8 +439,6 @@ Promise.all([
         edges = limited_edges;
 
         console.log("connection limiting filtering complete (", nodes.length, " nodes, ", edges.length, " edges)", new Date().toLocaleTimeString("en-US"))
-        // console.log("nodes", nodes);
-        // console.log("edges", edges)
 
         console.log("redrawing", new Date().toLocaleTimeString("en-US"))
         redraw(charge_strength, alpha, pin_candidates);
@@ -507,12 +506,12 @@ Promise.all([
                 unhighlight_node(node, edges);
             })
             .on("mousemove", move_tooltip)
-            .on("dblclick", unpin_node)
-            .on("contextmenu", function (event, node) {
-                event.preventDefault();
-                hide_tooltip();
-                display_context_menu(event);
-            })
+            .on("dblclick", unpin_node);
+        // .on("contextmenu", function (event, node) {
+        //     event.preventDefault();
+        //     hide_tooltip();
+        //     display_context_menu(event);
+        // })
 
         // Remove/add edges
         link = link.data(edges, function (d) { return d.source.id + "-" + d.target.id; });
@@ -555,7 +554,6 @@ Promise.all([
         });
 
         link.attr("d", function (d) {
-            // console.log(d.source, d.target)
             return "M" + d.source.x + "," + d.source.y + "L" + d.target.x + "," + d.target.y;
 
             // var dx = d.target.x - d.source.x,
@@ -612,7 +610,6 @@ Promise.all([
 
     // Node interaction controllers ----------------------------------------------------
     function dragstarted(event, node) {
-        // console.log("dragstarted", event.detail)
         if (!event.active) simulation.alphaTarget(0.3).restart();
         node.fx = node.x;
         node.fy = node.y;
@@ -626,7 +623,6 @@ Promise.all([
     };
 
     function dragended(event, node) {
-        // console.log("dragended", event.detail)
         if (!event.active) simulation.alphaTarget(0);
         if (node.fixed == true) {
             node.fx = node.x;
@@ -727,6 +723,40 @@ Promise.all([
             .alpha(.05)
             .restart()
     };
+
+    // To dislpay tooltip
+    function display_node_tooltip(event, data) {
+        let related_ids = similar_committees[data.id];
+
+        var display_str = (
+            "<h3>" + data.name + "</h3>" +
+            "Type: " + data.type + "<br>" +
+            "ID: " + data.id + "<br>"
+        );
+
+        if (related_ids != undefined) {
+            let related = raw_nodes
+                .filter(n => related_ids.includes(n.id) && n.id != data.id)
+                .sort((a, b) => related_ids.indexOf(a.id) - related_ids.indexOf(b.id))
+                .slice(0, 5)
+                .map((n, index) => (index + 1) + ". " + n.name + " (" + n.id + ")")
+                .join("<br>&emsp;");
+
+            let related_info = "<b>* Based primarily on occupactional makeup of donors</b>"
+
+            display_str = (
+                display_str + "<br><h4>Top 5 Similar Committees*</h4>&emsp;" +
+                related + "<br><br>" + related_info
+            );
+        }
+
+        tooltip
+            .style("transition-delay", "0s")
+            .style("opacity", 1)
+            .html(display_str);
+
+        tooltipTimer.restart(tooltipTimeout)
+    };
 }).catch(function (error) {
     console.log(error);
 });
@@ -752,7 +782,7 @@ function constrain(x, limits) {
 
 // Tooltip controllers -----------------------------------------------------------------
 function tooltipTimeout(elapsed) {
-    if (elapsed > 3500) {
+    if (elapsed > 5000) {
         hide_tooltip();
         tooltipTimer.stop();
     };
@@ -760,21 +790,7 @@ function tooltipTimeout(elapsed) {
 
 const tooltipTimer = d3.timer(tooltipTimeout);
 
-function display_node_tooltip(event, data) {
-    tooltip
-        .style("transition-delay", "0s")
-        .style("opacity", 1)
-        .html((
-            "<h3>" + data.name + "</h3>" +
-            "Type: " + data.type + "<br>" +
-            "ID: " + data.id + "<br>"
-        ));
-
-    tooltipTimer.restart(tooltipTimeout)
-};
-
 function hide_tooltip() {
-    // console.log("mouseout", event.detail)
     tooltip
         .style("transition-delay", "0.5s")
         .style("opacity", 0)
@@ -784,8 +800,8 @@ function hide_tooltip() {
 };
 
 function move_tooltip(event) {
-    // console.log("mousemove", event.detail)
     tooltip
+        .style("opacity", 1)
         .style("left", (event.pageX + 10) + "px")
         .style("top", (event.pageY + 10) + "px");
     tooltipTimer.restart(tooltipTimeout);
@@ -852,22 +868,22 @@ function display_edge_tooltip(event, data) {
 };
 
 // Context menu controllers ------------------------------------------------------------
-function display_context_menu(event) {
-    contextMenu
-        .style("opacity", 1)
-        .style("left", (event.pageX) + "px")
-        .style("top", (event.pageY) + "px")
-        .html(
-            "context menu<br>context menu"
-        );
-};
+// function display_context_menu(event) {
+//     contextMenu
+//         .style("opacity", 1)
+//         .style("left", (event.pageX) + "px")
+//         .style("top", (event.pageY) + "px")
+//         .html(
+//             "context menu<br>context menu"
+//         );
+// };
 
-function dismiss_context_menu() {
-    contextMenu
-        .style("left", -10000 + "px")
-        .style("top", -10000 + "px")
-        .style("opacity", 0);
-}
+// function dismiss_context_menu() {
+//     contextMenu
+//         .style("left", -10000 + "px")
+//         .style("top", -10000 + "px")
+//         .style("opacity", 0);
+// }
 
 // Node highlighter helpers ------------------------------------------------------------
 function get_neighboring_node_ids(nodeId, edges) {
