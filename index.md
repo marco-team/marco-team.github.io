@@ -6,11 +6,11 @@ Check out the [node graph](/node-graph/) to see how money follows between commit
 
 If you want more information, there are a number of informative sites. Here are just a few:
 
-* [The Federal Election Commission (FEC)](https://www.fec.gov/)
-* [OpenSecrets](https://www.opensecrets.org/)
-* [FollowTheMoney.org](https://www.followthemoney.org/)
-* [The Campaign Finance Institute (CFI)](http://www.cfinst.org/)
+* <a href="https://www.fec.gov/" target="_blank">The Federal Election Commission (FEC)</a>
+* <a href="https://www.opensecrets.org/" target="_blank">OpenSecrets</a>
+* <a href="https://www.followthemoney.org/" target="_blank">FollowTheMoney.org</a>
+* <a href="http://www.cfinst.org/" target="_blank">The Campaign Finance Institute (CFI)</a>
 
 # About
 
-The [Marco! Development Team](https://github.com/marco-team) is a group of Georgia Tech Master's of Analytics students.
+The <a href="https://github.com/marco-team" target="_blank">Marco! Development Team</a> is a group of Georgia Tech Master's of Analytics students.
