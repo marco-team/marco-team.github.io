@@ -38,7 +38,6 @@ permalink: /node-graph/
             <span id="chargealpha-value" class="threedigit"></span>
         </label>
         <input type="range" id="chargealpha" name="chargealpha" min=0 max=1 step="0.05" class="slider"><br>
-        <input type="number" step=0.05><br>
         <label for="pincandidates">
             Pin Candidates
             <i class="material-icons" id="pincandidates-info">info_outline</i>
