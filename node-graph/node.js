@@ -16,7 +16,7 @@ const _height = window.innerHeight
 const WIDTH = d3.max([_width - MARGINS.left - MARGINS.right, MIN_WIDTH]);
 const HEIGHT = d3.max([_height - MARGINS.top - MARGINS.bottom - 130, MIN_HEIGHT]);
 
-const verticalConstraints = [MARGINS.top + 100, HEIGHT - MARGINS.bottom - 30];
+const verticalConstraints = [MARGINS.top + 30, HEIGHT - MARGINS.bottom - 30];
 const horizontalConstraints = [MARGINS.left + 10, WIDTH - MARGINS.right - 30];
 
 const CANDIDATE_IDS = Array.from(["P80000722", "P80001571"]); // hard-code biden & trump IDs to not get extraneous candidates
@@ -104,7 +104,9 @@ var alphainfo = d3.select("body")
     .html((
         "<h3>Alpha</h3>" +
         "The alpha parameter can be thought of as a way to subdue the movement in " +
-        "the graph. Set it to 0 to have no movement."
+        "the graph. Set it to 0 to have no movement.<br><br>A higher alpha will " +
+        "cause the nodes to \"float around\" for longer, but will generally yield a " +
+        "better visual solution."
     ));
 
 d3.select("#alpha-info")
@@ -187,8 +189,12 @@ const standardLinkForceDistance = 200;
 const zoomLinkForceDistance = 350;
 
 // Legends -----------------------------------------------------------------------------
-var legend = svg.append("g")
+var legend = d3.select("#main_content")
+    .append("svg")
+    .attr("width", WIDTH)
+    .attr("height", 85)
     .attr("id", "legend")
+    .append("g")
     .attr("transform", "translate(20, 20)");
 
 // Node legend
