@@ -260,12 +260,11 @@ show_loading();
 
 Promise.all([
     d3.json("../data/nodes.json"),
-    d3.json("../data/edges.json"),
-    d3.json("../data/similar_committees.json")
+    d3.json("../data/edges.json")
 ]).then(function (data) {
     dismiss_loading();
     console.log("data loaded!", new Date().toLocaleTimeString("en-US"))
-    let [raw_nodes, raw_edges, similar_committees] = data;
+    let [raw_nodes, raw_edges] = data;
 
     let nodes = new Array();
     let edges = new Array();
@@ -726,7 +725,7 @@ Promise.all([
 
     // To dislpay tooltip
     function display_node_tooltip(event, data) {
-        let related_ids = similar_committees[data.id];
+        let related_ids = data.similar_committees;
 
         var display_str = (
             "<h3>" + data.name + "</h3>" +
