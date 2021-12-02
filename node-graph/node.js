@@ -130,7 +130,7 @@ var alphainfo = d3.select("body")
         "better visual solution."
     ));
 
-d3.select("#alpha-info")
+d3.select("#chargealpha-info")
     .on("mouseover", event => show_info_hover(event, alphainfo))
     .on("mouseout", _ => hide_info_hover(alphainfo));
 

@@ -64,6 +64,7 @@ ellipse.individual {
     background-color: rgba(211, 211, 211, 0.70);
     transition-property: opacity;
     transition-duration: 0.2s;
+    max-width: 500px;
 }
 
 /* Context menu */
