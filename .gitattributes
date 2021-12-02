@@ -1,0 +1,2 @@
+final_individual_to_committee_with_industry.csv filter=lfs diff=lfs merge=lfs -text
+*.csv filter=lfs diff=lfs merge=lfs -text
