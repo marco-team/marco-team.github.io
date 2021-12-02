@@ -725,14 +725,19 @@ Promise.all([
 
     // To dislpay tooltip
     function display_node_tooltip(event, data) {
-        let related_ids = data.similar_committees;
-
         var display_str = (
             "<h3>" + data.name + "</h3>" +
             "Type: " + data.type + "<br>" +
             "ID: " + data.id + "<br>"
         );
 
+        if (data.type != "CAN" && data.type != "IND") {
+            let receipts = currencyFormatter(data.receipts);
+            let disbursements = currencyFormatter(data.disbursements);
+            display_str = display_str + "Total Receipts: " + receipts + "<br>" + "Total Disbursements: " + disbursements + "<br>";
+        }
+
+        let related_ids = data.similar_committees;
         if (related_ids != undefined) {
             let related = raw_nodes
                 .filter(n => related_ids.includes(n.id) && n.id != data.id)
