@@ -56,7 +56,6 @@ ellipse.individual {
 #tooltip, #loading, .info {
     position: absolute;
     opacity: 0;
-    text-transform: capitalize;
     border-color: gray;
     border-width: 2px;
     border-style: solid;
@@ -71,7 +70,6 @@ ellipse.individual {
 #contextmenu {
     position: absolute;
     opacity: 0;
-    /* text-transform: capitalize; */
     border-color: black;
     border-style: solid;
     border-radius: 5px;
@@ -98,6 +96,5 @@ ellipse.individual {
 }
 
 .info {
-    text-transform: none;
     opacity: 1;
 }
