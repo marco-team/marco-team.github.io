@@ -71,7 +71,7 @@ ellipse.individual {
 #contextmenu {
     position: absolute;
     opacity: 0;
-    text-transform: capitalize;
+    /* text-transform: capitalize; */
     border-color: black;
     border-style: solid;
     border-radius: 5px;

@@ -8,7 +8,7 @@ Continue reading to learn more about our approach and techniques to each aspect 
 
 ## Data Collection
 
-The vast majority of our data was collected from the <a href="https://api.open.fec.gov/developers/" target="_blank">openFEC API</a>, which is free and open to the public. To aid in our process of gathering the data, we authored the now open-sourced <a href="https://github.com/marco-team/opynfec" target="_blank">opynfec</a> package: a Python wrapper for the openFEC API. Feel free to use this for your own use cases, although not all endpoints have been implemented. Pull requests are always welcome!
+The vast majority of our data was collected from the <a href="https://api.open.fec.gov/developers/" target="_blank">openFEC API</a>, which is free and open to the public. To aid in our process of gathering the data, we authored the now open-sourced <a href="https://pypi.org/project/opynfec/" target="_blank">opynfec</a> package: a Python wrapper for the openFEC API. Feel free to use this for your own use cases, although not all endpoints have been implemented. Pull requests are always welcome!
 
 ## Node Graph
 
