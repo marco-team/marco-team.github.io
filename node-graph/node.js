@@ -89,7 +89,7 @@ var explicitlimitinfo = d3.select("body")
     .append("foreignObject")
     .attr("class", "info")
     .html((
-        "<h3>Candidate Limit</h3>" +
+        "<h3>Node Limit</h3>" +
         "Controls the approximate maximum number of nodes attached to each candidate " +
         "node. Think of this as a proxy for controlling the depth of the graph.<br><br>" +
         "When there are more nodes than this limit allows for, the ones closest to " +
