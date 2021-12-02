@@ -742,7 +742,11 @@ Promise.all([
                 .map((n, index) => (index + 1) + ". " + n.name + " (" + n.id + ")")
                 .join("<br>&emsp;");
 
-            let related_info = "<b>* Based primarily on occupactional makeup of donors</b>"
+            let related_info = (
+                "<b>* Based primarily on occupactional makeup of donors (as well as " +
+                "total number & quantity of contributions, age of committee, and " +
+                "percent funded by individuals)</b>"
+            );
 
             display_str = (
                 display_str + "<br><h4>Top 5 Similar Committees*</h4>&emsp;" +
