@@ -725,18 +725,21 @@ Promise.all([
 
     // To dislpay tooltip
     function display_node_tooltip(event, data) {
+        // Baseline display
         var display_str = (
             "<h3>" + data.name + "</h3>" +
             "Type: " + data.type + "<br>" +
             "ID: " + data.id + "<br>"
         );
 
+        // Show total reciepts & disbursements
         if (data.type != "CAN" && data.type != "IND") {
             let receipts = currencyFormatter(data.receipts);
             let disbursements = currencyFormatter(data.disbursements);
             display_str = display_str + "Total Receipts: " + receipts + "<br>" + "Total Disbursements: " + disbursements + "<br>";
         }
 
+        // Show related committees
         let related_ids = data.similar_committees;
         if (related_ids != undefined) {
             let related = raw_nodes
@@ -758,6 +761,12 @@ Promise.all([
             );
         }
 
+        // Show page rank
+        if (data.type != "CAN" && data.type != "IND") {
+            display_str = display_str + "<br><br>PageRank: " + scientificNotationFormatter(data.page_rank);
+        }
+
+        // Display the tooltip
         tooltip
             .style("transition-delay", "0s")
             .style("opacity", 1)
@@ -818,7 +827,8 @@ function move_tooltip(event) {
 // Edge tooltip controllers
 const dateParser = d3.timeParse("%Y-%m-%dT%H:%M:%S.%L%L%Z");
 const dateFormatter = d3.timeFormat("%B %-e, %Y %I:%M %p");
-const currencyFormatter = d3.format("$,.2f")
+const currencyFormatter = d3.format("$,.2f");
+const scientificNotationFormatter = d3.format(".1e")
 
 function disbursements_info(data) {
     return (
