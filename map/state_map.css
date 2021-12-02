@@ -1,0 +1,42 @@
+text {
+  fill: #000;
+  font: 10px sans-serif;
+  pointer-events: none;
+}
+
+p.bold {
+    font-weight: bold;
+}
+
+.tooltip {
+                position: absolute;
+                text-align: center;
+                height: 15px;
+                padding: 8px;
+                margin-top: -20px;
+                font: 10px sans-serif;
+                background: white;
+                border-style: solid;
+                border-color: black;
+                border-width: 1px;
+                border-radius: 5px;
+                color: black;
+                font-weight: bold;
+                pointer-events: none;
+            }
+
+.tooltip2 {
+                position: absolute;
+                text-align: center;
+                padding: 8px;
+                margin-top: -20px;
+                font: 20px sans-serif;
+                background: white;
+                border-style: solid;
+                border-color: black;
+                border-width: 1px;
+                border-radius: 5px;
+                color: rgb(2, 2, 2);
+                font-weight: bold;
+                pointer-events: none;
+            }
