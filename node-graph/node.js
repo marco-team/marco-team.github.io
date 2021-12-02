@@ -48,7 +48,8 @@ var loadingScreen = d3.select("body")
     .append("foreignObject")
     .attr("id", "loading");
 
-// Initialize info hovers
+// Initialize info hovers --------------------------------------------------------------
+// Connection limit
 var connectionlimitinfo = d3.select("body")
     .append("div")
     .append("foreignObject")
@@ -57,14 +58,32 @@ var connectionlimitinfo = d3.select("body")
         "<h3>Connection Limit</h3>" +
         "Controls the maximum number of incoming edges for each node. Think of this " +
         "as a proxy for controlling the branching factor of the graph.<br><br>" +
-        "When there are more edges than this limit allows for, the ones with the " +
-        "largest disbursement/receipt quantity are displayed."
+        "When there are more edges than this limit allows for, the top ones are " +
+        "displaed, sorted by the user selection of \"Quantity\" or \"PageRank\"."
     ));
 
 d3.select("#connectionlimit-info")
     .on("mouseover", event => show_info_hover(event, connectionlimitinfo))
     .on("mouseout", _ => hide_info_hover(connectionlimitinfo));
 
+// Order by
+var orderbyinfo = d3.select("body")
+    .append("div")
+    .append("foreignObject")
+    .attr("class", "info")
+    .html((
+        "<h3>Order By</h3>" +
+        "Controls how to rank the nodes when only showing a subset. Can either sort " +
+        "by largest disbursement/receipt quantity or by the node's PageRank.<br><br>" +
+        "<b>Warning</b>: Sorting by page rank can be slow, and often yields very " +
+        "similar results to sorting by quantity."
+    ));
+
+d3.select("#connectionorderby-info")
+    .on("mouseover", event => show_info_hover(event, orderbyinfo))
+    .on("mouseout", _ => hide_info_hover(orderbyinfo));
+
+// Node limit
 var explicitlimitinfo = d3.select("body")
     .append("div")
     .append("foreignObject")
@@ -81,6 +100,7 @@ d3.select("#explicitlimit-info")
     .on("mouseover", event => show_info_hover(event, explicitlimitinfo))
     .on("mouseout", _ => hide_info_hover(explicitlimitinfo));
 
+// Charge strength
 var chargestrengthinfo = d3.select("body")
     .append("div")
     .append("foreignObject")
@@ -97,6 +117,7 @@ d3.select("#chargestrength-info")
     .on("mouseover", event => show_info_hover(event, chargestrengthinfo))
     .on("mouseout", _ => hide_info_hover(chargestrengthinfo));
 
+// Alpha
 var alphainfo = d3.select("body")
     .append("div")
     .append("foreignObject")
@@ -113,6 +134,7 @@ d3.select("#alpha-info")
     .on("mouseover", event => show_info_hover(event, alphainfo))
     .on("mouseout", _ => hide_info_hover(alphainfo));
 
+// Pin candidates
 var pincandidatesinfo = d3.select("body")
     .append("div")
     .append("foreignObject")
@@ -128,6 +150,7 @@ d3.select("#pincandidates-info")
 
 // Make sure they are initially hidden
 hide_info_hover(connectionlimitinfo);
+hide_info_hover(orderbyinfo);
 hide_info_hover(explicitlimitinfo);
 hide_info_hover(chargestrengthinfo);
 hide_info_hover(alphainfo);
@@ -260,18 +283,17 @@ show_loading();
 
 Promise.all([
     d3.json("../data/nodes.json"),
-    d3.json("../data/edges.json"),
-    d3.json("../data/similar_committees.json")
+    d3.json("../data/edges.json")
 ]).then(function (data) {
     dismiss_loading();
     console.log("data loaded!", new Date().toLocaleTimeString("en-US"))
-    let [raw_nodes, raw_edges, similar_committees] = data;
+    let [raw_nodes, raw_edges] = data;
 
     let nodes = new Array();
     let edges = new Array();
 
     // User settings -------------------------------------------------------------------
-    // Update values as you slide
+    // Update values as you interact
     d3.select("#connectionlimit").on("input", function () {
         d3.select("#connectionlimit-value").node().textContent = this.value;
     });
@@ -288,14 +310,6 @@ Promise.all([
         d3.select("#chargealpha-value").node().textContent = Number(this.value).toFixed(2);
     });
 
-    d3.select("#pincandidates").on("input", function () {
-        if (this.value == "on") {
-            this.value = "off";
-        } else {
-            this.value = "on";
-        }
-    });
-
     // Redraw when you hit button
     d3.select("#submit").on("click", function () {
         // Redraw the graph on button click
@@ -306,7 +320,8 @@ Promise.all([
             explicit_limit = d3.select("#explicitlimit").node().value,
             charge_strength = d3.select("#chargestrength").node().value,
             alpha = d3.select("#chargealpha").node().value,
-            pin_candidates = (d3.select("#pincandidates").node().value == "on"),
+            pin_candidates = (d3.select("#pincandidates").node().checked),
+            sort_by_pagerank = d3.select("#pagerank").node().checked,
         );
         dismiss_loading();
     });
@@ -354,11 +369,12 @@ Promise.all([
         explicit_limit = 5,
         charge_strength = 800,
         alpha = "0.70",
-        pin_candidates = (d3.select("#pincandidates").node().value == "on"),
+        pin_candidates = (d3.select("#pincandidates").node().checked),
+        sort_by_pagerank = d3.select("#pagerank").node().checked,
     ); // This is the default values for the user settings
 
     // Node & Edge limiters ------------------------------------------------------------
-    function update_connection_limit_redraw(max_connections, explicit_limit, charge_strength, alpha, pin_candidates) {
+    function update_connection_limit_redraw(max_connections, explicit_limit, charge_strength, alpha, pin_candidates, sort_by_pagerank) {
         console.log("filtering through for connection limit", new Date().toLocaleTimeString("en-US"))
 
         // Initialize all user values
@@ -394,7 +410,26 @@ Promise.all([
                             return e.target == current_node_id;
                         }
                     })
-                    .sort((a, b) => b.quantity - a.quantity)
+                    .sort((a, b) => {
+                        if (sort_by_pagerank) {
+                            var page_rank_a = 0;
+                            if (a.target.constructor === ({}).constructor) {
+                                page_rank_a = a.target.page_rank;
+                            } else {
+                                page_rank_a = raw_nodes.filter(n => n.id == a.target)[0].page_rank;
+                            }
+
+                            var page_rank_b = 0;
+                            if (b.target.constructor === ({}).constructor) {
+                                page_rank_b = b.target.page_rank;
+                            } else {
+                                page_rank_b = raw_nodes.filter(n => n.id == b.target)[0].page_rank;
+                            }
+                            return page_rank_b - page_rank_a;
+                        } else {
+                            return b.quantity - a.quantity;
+                        }
+                    })
                     .slice(0, max_connections);
 
                 frontier_nodes.push(
@@ -726,14 +761,22 @@ Promise.all([
 
     // To dislpay tooltip
     function display_node_tooltip(event, data) {
-        let related_ids = similar_committees[data.id];
-
+        // Baseline display
         var display_str = (
             "<h3>" + data.name + "</h3>" +
             "Type: " + data.type + "<br>" +
             "ID: " + data.id + "<br>"
         );
 
+        // Show total reciepts & disbursements
+        if (data.type != "CAN" && data.type != "IND") {
+            let receipts = currencyFormatter(data.receipts);
+            let disbursements = currencyFormatter(data.disbursements);
+            display_str = display_str + "Total Receipts: " + receipts + "<br>" + "Total Disbursements: " + disbursements + "<br>";
+        }
+
+        // Show related committees
+        let related_ids = data.similar_committees;
         if (related_ids != undefined) {
             let related = raw_nodes
                 .filter(n => related_ids.includes(n.id) && n.id != data.id)
@@ -754,6 +797,12 @@ Promise.all([
             );
         }
 
+        // Show page rank
+        if (data.type != "CAN" && data.type != "IND") {
+            display_str = display_str + "<br><br>PageRank: " + scientificNotationFormatter(data.page_rank);
+        }
+
+        // Display the tooltip
         tooltip
             .style("transition-delay", "0s")
             .style("opacity", 1)
@@ -814,7 +863,8 @@ function move_tooltip(event) {
 // Edge tooltip controllers
 const dateParser = d3.timeParse("%Y-%m-%dT%H:%M:%S.%L%L%Z");
 const dateFormatter = d3.timeFormat("%B %-e, %Y %I:%M %p");
-const currencyFormatter = d3.format("$,.2f")
+const currencyFormatter = d3.format("$,.2f");
+const scientificNotationFormatter = d3.format(".1e")
 
 function disbursements_info(data) {
     return (
