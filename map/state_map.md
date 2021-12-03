@@ -4,6 +4,18 @@ permalink: /map/
 
 # State Map
 
+<select id="dropdown">
+  <option value="candidate" selected>Contributions to presidential candidates</option>
+  <option value="party">Contributions to political parties</option>
+</select>
+<div style="width:1930px">
+  <svg id="choropleth"></svg>
+  <svg id="info"></svg>
+</div>
+
+<div id="tooltip"></div>
+<div id="tooltip2"></div>
+
 <script type="text/javascript" src="https://d3js.org/d3.v5.min.js"></script>
 <script type="text/javascript" src="../lib/d3-tip.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/d3-array@3"></script>
