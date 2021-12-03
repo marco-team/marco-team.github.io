@@ -27,11 +27,11 @@
   .attr("transform", "translate(" + 0 + "," + margin.top + ")")
   .on("dblclick", dblclicked);
   
-  var tooltip = d3.select("#main_content_wrap")
+  var tooltip = d3.select("body")
                   .append("div")
                   .append("foreignObject")
                   .attr("id", "tooltip").style("display", "none");
-  var info_tooltip = d3.select("#main_content_wrap")
+  var info_tooltip = d3.select("body")
                       .append("div")
                       .append("foreignObject")
                       .attr("id", "tooltip2").style("display", "none")
@@ -57,7 +57,8 @@
                               "<h3>Hover over a state to view its contributions to political parties or candidates in the 2020 presidential election</h3>" + "<br>" + 
                               "<h3>Click on a state to pin it to view the cities that contributed the most to explicitly Republican or Democratic committees</h3>" + "<br>" +
                               "<h3>Click on a pinned state to un-pin and swap out its information with a different state</h3>"
-          info_tooltip.style("display", "inline").html(display_string);
+          info_tooltip.style("display", "inline").html(display_string).style("left", (d3.event.pageX + 10) + "px")
+          .style("top", (d3.event.pageY + 10) + "px");;
   }
   function hideInfoToolTip() {
           info_tooltip.style("display", "none");
