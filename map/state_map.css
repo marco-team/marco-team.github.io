@@ -20,7 +20,7 @@ p.bold {
                 border-color: black;
                 border-width: 1px;
                 border-radius: 5px;
-                color: white;
+                color: black;
                 font-weight: bold;
                 pointer-events: none;
             }
@@ -36,7 +36,7 @@ p.bold {
                 border-color: black;
                 border-width: 1px;
                 border-radius: 5px;
-                color: white;
+                color: black;
                 font-weight: bold;
                 pointer-events: none;
             }
