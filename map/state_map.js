@@ -15,20 +15,26 @@
   .attr("id", "choropleth")
   .attr("width", 960)
   .attr("height", 700)
-  .attr("transform", "translate(" + -250 + "," + margin.top + ")")
+  .attr("transform", "translate(" + 0 + "," + margin.top + ")")
   .on("dblclick", dblclicked);
   const info_svg = d3.select("#info")
   .attr("id", "info")
   .attr("class", "info")
   .attr("width", 860)
   .attr("height", 700)
-  .attr("transform", "translate(" + -250 + "," + margin.top + ")")
+  .attr("transform", "translate(" + 0 + "," + margin.top + ")")
   .on("dblclick", dblclicked);
   
-  var tooltip = d3.select("#tooltip")
-              .attr("class", "tooltip");
-  var info_tooltip = d3.select("#tooltip2")
-              .attr("class", "tooltip2");
+  var tooltip = d3.select("body")
+                  .append("div")
+                  .append("foreignObject")
+                  .attr("id", "tooltip").style("display", "none");
+  var info_tooltip = d3.select("body")
+                      .append("div")
+                      .append("foreignObject")
+                      .attr("id", "tooltip2").style("display", "none")
+                      .attr("width", 400)
+                      .attr('height', 400);
           
   var projection = d3.geoAlbersUsa().scale(1200).translate([487.5, 305])
   var path = d3.geoPath().projection(projection);
@@ -45,16 +51,11 @@
                       .style("font-size", "25px")
                       .style("font-weight", "bold")
   function showInfoToolTip() {
-          info_tooltip.style("display", "inline");
-          info_tooltip.text("Welcome to Team Marco's State Political Contribution Map")
-                      .style("left", (d3.event.pageX - 600) + "px")     
-                      .style("top", (d3.event.pageY - 400 + 30) + "px")
-                      .append('div')
-                      .html("\nHover over a state to view its contributions to political parties or candidates in the 2020 presidential election")
-                      .append('div')
-                      .html("Click on a state to pin it to view the cities that contributed the most to explicitly Republican or Democratic committees")
-                      .append('div')
-                      .html("Click on a pinned state to un-pin and swap out its information with a different state"); 
+          var display_string = "<h3>Welcome to Team Marco's State Political Contribution Map</h3>" + "<br>" +
+                              "<h3>Hover over a state to view its contributions to political parties or candidates in the 2020 presidential election</h3>" + "<br>" + 
+                              "<h3>Click on a state to pin it to view the cities that contributed the most to explicitly Republican or Democratic committees</h3>" + "<br>" +
+                              "<h3>Click on a pinned state to un-pin and swap out its information with a different state</h3>"
+          info_tooltip.style("display", "inline").html(display_string);
   }
   function hideInfoToolTip() {
           info_tooltip.style("display", "none");
