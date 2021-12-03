@@ -12,12 +12,14 @@
     
   // enter code to create svg
   const map_svg = d3.select("#main_content_wrap")
+  .append('svg')
   .attr("id", "choropleth")
   .attr("width", 960)
   .attr("height", 700)
   .attr("transform", "translate(" + 0 + "," + margin.top + ")")
   .on("dblclick", dblclicked);
   const info_svg = d3.select("#main_content_wrap")
+  .append('svg')
   .attr("id", "info")
   .attr("class", "info")
   .attr("width", 860)
