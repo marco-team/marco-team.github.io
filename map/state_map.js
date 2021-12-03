@@ -217,6 +217,7 @@
           var contributions = values[4].filter(obj => {
                               return codeToState(obj.contributor_state) == stateName
           })
+          console.log(values[4]);
           var contribution_values = d3.flatRollup(contributions, v => d3.sum(v, d => d.contribution_amount), d => d.committee_party, d => d.contributor_state, d => d.contributor_city)
           sorted_city = contribution_values.slice().sort((a, b) => d3.descending(a[3], b[3]))
           all_cities = sorted_city.filter(function(d) {
