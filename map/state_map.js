@@ -11,13 +11,13 @@
     var lockedIn = [false, false];
     
   // enter code to create svg
-  const map_svg = d3.select("#choropleth")
+  const map_svg = d3.select("#main_content_wrap")
   .attr("id", "choropleth")
   .attr("width", 960)
   .attr("height", 700)
   .attr("transform", "translate(" + 0 + "," + margin.top + ")")
   .on("dblclick", dblclicked);
-  const info_svg = d3.select("#info")
+  const info_svg = d3.select("#main_content_wrap")
   .attr("id", "info")
   .attr("class", "info")
   .attr("width", 860)
