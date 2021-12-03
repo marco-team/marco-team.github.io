@@ -11,20 +11,18 @@
     var lockedIn = [false, false];
     
   // enter code to create svg
-  const map_svg = d3.select("#main_content_wrap")
-  .append("svg")
+  const map_svg = d3.select("#choropleth")
   .attr("id", "choropleth")
   .attr("width", 960)
   .attr("height", 700)
-  .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+  .attr("transform", "translate(" + -250 + "," + margin.top + ")")
   .on("dblclick", dblclicked);
-  const info_svg = d3.select("#main_content_wrap")
-  .append("svg")
+  const info_svg = d3.select("#info")
   .attr("id", "info")
   .attr("class", "info")
   .attr("width", 860)
   .attr("height", 700)
-  .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+  .attr("transform", "translate(" + -250 + "," + margin.top + ")")
   .on("dblclick", dblclicked);
   
   var tooltip = d3.select("#tooltip")
