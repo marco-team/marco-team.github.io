@@ -257,6 +257,7 @@
           tooltip.text("City: " + d.properties.name)
                       .style("left", (d3.event.pageX - 500 + 20) + "px")     
                       .style("top", (d3.event.pageY - 250) + "px")
+                      .style('font-size', 40)
         }
         function hideToolTip(d) {
           tooltip.style("display", "none");
