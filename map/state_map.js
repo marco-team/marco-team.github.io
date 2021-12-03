@@ -47,7 +47,7 @@
   function showInfoToolTip() {
           info_tooltip.style("display", "inline");
           info_tooltip.text("Welcome to Team Marco's State Political Contribution Map")
-                      .style("left", (d3.event.pageX - 300) + "px")     
+                      .style("left", (d3.event.pageX - 600) + "px")     
                       .style("top", (d3.event.pageY - 400 + 30) + "px")
                       .append('div')
                       .html("\nHover over a state to view its contributions to political parties or candidates in the 2020 presidential election")
@@ -248,7 +248,7 @@
         function showToolTip(d) {
           tooltip.style("display", "inline");
           tooltip.text("City: " + d.properties.name)
-                      .style("left", (d3.event.pageX -300 + 20) + "px")     
+                      .style("left", (d3.event.pageX - 600 + 20) + "px")     
                       .style("top", (d3.event.pageY - 400) + "px")
         }
         function hideToolTip(d) {
