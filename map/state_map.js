@@ -249,7 +249,7 @@
           tooltip.style("display", "inline");
           tooltip.text("City: " + d.properties.name)
                       .style("left", (d3.event.pageX - 500 + 20) + "px")     
-                      .style("top", (d3.event.pageY - 100) + "px")
+                      .style("top", (d3.event.pageY - 250) + "px")
         }
         function hideToolTip(d) {
           tooltip.style("display", "none");
