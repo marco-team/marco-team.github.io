@@ -26,6 +26,8 @@
   .attr("height", 700)
   .attr("transform", "translate(" + 0 + "," + margin.top + ")")
   .on("dblclick", dblclicked);
+
+  var show_info = false;
   
   var tooltip = d3.select("#main_content_wrap")
                   .append("div")
@@ -45,21 +47,22 @@
                         .attr('r', 20)
                         .attr('cx', 25)
                         .attr('cy', 25)
-                        .on('mouseover', showInfoToolTip)
-                        .on('mouseout', hideInfoToolTip)
+                        .on('click', showInfoToolTip)
+                        .on('mouseover', () => d3.select(event.target).style("cursor", "pointer"))
   map_svg.append("text").text('?').style('fill', 'white').attr('x', 25)
                       .attr('y', 35)
                       .style("text-anchor", "middle")
                       .style("font-size", "25px")
                       .style("font-weight", "bold")
   function showInfoToolTip() {
+          show_info = !show_info;
           var display_string = "<h3>Welcome to Team Marco's State Political Contribution Map</h3>" + "<br>" +
                               "<h3>Hover over a state to view its contributions to political parties or candidates in the 2020 presidential election</h3>" + "<br>" + 
                               "<h3>Click on a state to pin it to view the cities that contributed the most to explicitly Republican or Democratic committees</h3>" + "<br>" +
                               "<h3>Click on a pinned state to un-pin and swap out its information with a different state</h3>"
-          info_tooltip.style("display", "inline").html(display_string).style("left", (d3.event.pageX + 10) + "px")
-          .style("top", (d3.event.pageY + 10) + "px");;
-  }
+          if (show_info == true) info_tooltip.style("display", "inline").html(display_string).style("left", (d3.event.pageX + 10) + "px").style("top", (d3.event.pageY + 10) + "px");
+          else info_tooltip.style("display", "none");
+        }
   function hideInfoToolTip() {
           info_tooltip.style("display", "none");
   }
