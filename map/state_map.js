@@ -254,7 +254,7 @@
         }).attr('stroke', 'black').on('mouseover', showToolTip).on('mouseout', hideToolTip)
         function showToolTip(d) {
           tooltip.style("display", "inline");
-          tooltip.text("<h2>City: " + d.properties.name + "</h2>")
+          tooltip.html("<h2>City: " + d.properties.name + "</h2>")
                       .style("left", (d3.event.pageX - 500 + 20) + "px")     
                       .style("top", (d3.event.pageY - 250) + "px")
                       .style('font-size', 40)
