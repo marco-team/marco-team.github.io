@@ -27,11 +27,11 @@
   .attr("transform", "translate(" + 0 + "," + margin.top + ")")
   .on("dblclick", dblclicked);
   
-  var tooltip = d3.select("body")
+  var tooltip = d3.select("#main_content_wrap")
                   .append("div")
                   .append("foreignObject")
                   .attr("id", "tooltip").style("display", "none");
-  var info_tooltip = d3.select("body")
+  var info_tooltip = d3.select("#main_content_wrap")
                       .append("div")
                       .append("foreignObject")
                       .attr("id", "tooltip2").style("display", "none")
