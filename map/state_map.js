@@ -58,6 +58,7 @@
           show_info = !show_info;
           var display_string = "<h3>Welcome to Team Marco's State Political Contribution Map</h3>" + "<br>" +
                               "<h3>Hover over a state to view its contributions to political parties or candidates in the 2020 presidential election</h3>" + "<br>" + 
+                              "<h3>The color of each state is a proportion of how much money is sent to the political party or candidate (i.e. the redder the state, the more of its donations went to the Republican party/Donald Trump</h3>" + "<br>" +
                               "<h3>Click on a state to pin it to view the cities that contributed the most to explicitly Republican or Democratic committees</h3>" + "<br>" +
                               "<h3>Click on a pinned state to un-pin and swap out its information with a different state</h3>"
           if (show_info == true) info_tooltip.style("display", "inline").html(display_string).style("left", (d3.event.pageX + 10) + "px").style("top", (d3.event.pageY + 10) + "px");
